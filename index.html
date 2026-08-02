@@ -67,24 +67,28 @@
   .legend span{display:flex;align-items:center;gap:5px;}
   .swatch{width:9px;height:9px;border-radius:2px;display:inline-block;}
 
-  .date-row{display:flex;align-items:center;gap:12px;padding:6px 18px 4px;border-bottom:1px solid var(--border);}
-  .date-row .row-name{width:120px;flex-shrink:0;}
+  .col-head{display:flex;align-items:center;gap:10px;padding:8px 18px 6px;border-bottom:1px solid var(--border);}
+  .col-head .row-name{width:118px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text-faint);letter-spacing:.06em;text-transform:uppercase;}
   .date-strip{display:flex;gap:3px;flex:1;}
-  .date-cell{flex:1;min-width:5px;max-width:12px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--text-faint);}
-  .date-cell.is-today{color:var(--text);font-weight:600;}
-  .date-row .row-status{width:82px;flex-shrink:0;}
+  .date-cell{flex:1;min-width:5px;max-width:12px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-faint);}
+  .col-head .today-col-label{width:52px;flex-shrink:0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text);font-weight:600;}
+  .col-head .row-status{width:76px;flex-shrink:0;}
 
-  .row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-top:1px solid var(--border);}
+  .row{display:flex;align-items:center;gap:10px;padding:11px 18px;border-top:1px solid var(--border);}
   .row:first-of-type{border-top:none;}
-  .row-name{width:120px;flex-shrink:0;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .row-name{width:118px;flex-shrink:0;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .strip{display:flex;gap:3px;flex:1;flex-wrap:nowrap;overflow:hidden;}
   .cell{flex:1;min-width:5px;max-width:12px;height:22px;border-radius:2px;background:var(--gray-cell);}
   .cell.done{background:var(--green);} .cell.miss1{background:var(--amber);} .cell.miss2{background:var(--red);}
-  .cell.future{background:var(--gray-future);}
-  .cell.clickable{cursor:pointer;}
-  .cell.clickable:hover{opacity:.75;}
-  .cell.today{border:1.5px solid var(--text);max-width:16px;border-radius:4px;}
-  .row-status{width:82px;flex-shrink:0;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;}
+
+  .today-col{width:64px;flex-shrink:0;display:flex;justify-content:center;}
+  .today-box{width:52px;height:52px;border-radius:12px;border:2px solid var(--border);background:var(--panel-2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.12s ease;}
+  .today-box:active{transform:scale(.92);}
+  .today-box.checked{background:var(--green);border-color:var(--green);}
+  .today-box svg{width:26px;height:26px;opacity:0;transition:opacity .1s;}
+  .today-box.checked svg{opacity:1;}
+
+  .row-status{width:76px;flex-shrink:0;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;}
   .row-status.good{color:var(--green);} .row-status.warn{color:var(--amber);} .row-status.bad{color:var(--red);} .row-status.muted{color:var(--text-faint);font-weight:500;}
 
   footer{text-align:center;margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-faint);letter-spacing:.05em;}
@@ -92,14 +96,16 @@
   @media (max-width:640px){
     .kpis{grid-template-columns:repeat(2,1fr);}
     .charts{grid-template-columns:1fr;}
-    .row-name{width:82px;font-size:12px;}
-    .row-status{width:54px;font-size:10px;}
-    .cell{max-width:8px;}
-    .cell.today{max-width:14px;}
+    .row-name{width:76px;font-size:11.5px;}
+    .row-status{width:48px;font-size:9.5px;}
+    .cell{max-width:7px;}
     .legend{display:none;}
-    .date-row .row-name{width:82px;}
-    .date-row .row-status{width:54px;}
-    .date-cell{max-width:8px;font-size:7.5px;}
+    .col-head .row-name{width:76px;}
+    .col-head .row-status{width:48px;}
+    .col-head .today-col-label{width:52px;}
+    .today-col{width:52px;}
+    .today-box{width:42px;height:42px;}
+    .date-cell{max-width:7px;font-size:7.5px;}
   }
 </style>
 </head>
@@ -144,16 +150,17 @@
 
   <div class="panel">
     <div class="panel-head">
-      <div class="panel-title">Habits &mdash; tap a day to check in</div>
+      <div class="panel-title" id="panelTitle">Habits</div>
       <div class="legend">
         <span><i class="swatch" style="background:var(--green)"></i>done</span>
         <span><i class="swatch" style="background:var(--amber)"></i>1 miss</span>
         <span><i class="swatch" style="background:var(--red)"></i>2+ miss</span>
       </div>
     </div>
-    <div class="date-row">
+    <div class="col-head">
       <div class="row-name"></div>
       <div class="date-strip" id="dateStrip"></div>
+      <div class="today-col-label" id="todayColLabel">Today</div>
       <div class="row-status"></div>
     </div>
     <div id="rows"></div>
@@ -170,64 +177,62 @@ try { const saved = localStorage.getItem('habitctl_why'); if (saved) whyText.tex
 whyText.addEventListener('input', () => { try { localStorage.setItem('habitctl_why', whyText.textContent); } catch(e) {} });
 eyeBtn.addEventListener('click', () => whyText.classList.toggle('blurred'));
 
-// ---- Real 30-day window starting Aug 1, 2026, all blank until you check in ----
+// ---- Real 30-day window starting Aug 1, 2026 ----
 const START_DATE = new Date('2026-08-01T00:00:00');
 const today = new Date();
 today.setHours(0,0,0,0);
 let todayIndex = Math.floor((today - START_DATE) / 86400000);
 todayIndex = Math.max(0, Math.min(29, todayIndex));
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function dateAt(i){ const d = new Date(START_DATE); d.setDate(d.getDate()+i); return d; }
+function fmtShort(i){ const d = dateAt(i); return d.getDate(); }
+function fmtLong(i){ const d = dateAt(i); return MONTHS[d.getMonth()] + ' ' + d.getDate(); }
+
 function loadHabits(){
-  try {
-    const saved = localStorage.getItem('habitctl_data');
-    if (saved) return JSON.parse(saved);
-  } catch(e) {}
-  return [
-    { name: "Drink 3L water",        days: Array(30).fill(null) },
-    { name: "Gym by 7.30",           days: Array(30).fill(null) },
-    { name: "5 min book reading",    days: Array(30).fill(null) },
-    { name: "15 min study",          days: Array(30).fill(null) },
-    { name: "5 min meditation",      days: Array(30).fill(null) },
-    { name: "Supplements",           days: Array(30).fill(null) },
-    { name: "Worship God",           days: Array(30).fill(null) },
-    { name: "Gratitude book",        days: Array(30).fill(null) },
-    { name: "Healthifyme tracker",   days: Array(30).fill(null) },
-    { name: "No MSFT",               days: Array(30).fill(null) },
-    { name: "Hare Rama Hare Krishna",days: Array(30).fill(null) },
-    { name: "No weed",               days: Array(30).fill(null) },
-  ];
+  try { const saved = localStorage.getItem('habitctl_data_v2'); if (saved) return JSON.parse(saved); } catch(e) {}
+  const names = ["Drink 3L water","Gym by 7.30","5 min book reading","15 min study","5 min meditation",
+    "Supplements","Worship God","Gratitude book","Healthifyme tracker","No MSFT","Hare Rama Hare Krishna","No weed"];
+  return names.map(name => ({ name, days: Array(30).fill(null) }));
 }
 const habits = loadHabits();
-function saveHabits(){ try { localStorage.setItem('habitctl_data', JSON.stringify(habits)); } catch(e) {} }
+function saveHabits(){ try { localStorage.setItem('habitctl_data_v2', JSON.stringify(habits)); } catch(e) {} }
+
+// state: 'future' | 'pending' (today, not yet checked) | 'done' | 'missed'
+function dayState(days, i){
+  if(i > todayIndex) return 'future';
+  if(i === todayIndex) return days[i] === true ? 'done' : 'pending';
+  return days[i] === true ? 'done' : 'missed';
+}
 
 function computeStatus(days){
   let trailingMiss = 0;
-  for(let i=todayIndex;i>=0;i--){
-    if(days[i]===null) continue;
-    if(days[i]===false){ trailingMiss++; } else { break; }
+  for(let i = todayIndex; i >= 0; i--){
+    const s = dayState(days, i);
+    if(s === 'pending') continue;
+    if(s === 'missed'){ trailingMiss++; continue; }
+    if(s === 'done'){ break; }
   }
-  let bestStreak = 0, cur = 0;
-  for(let i=0;i<=todayIndex;i++){
-    if(days[i]===true){ cur++; bestStreak=Math.max(bestStreak,cur); } else if(days[i]===false){ cur=0; }
+  let bestStreak = 0, cur = 0, doneCount = 0, trackedCount = 0;
+  for(let i = 0; i <= todayIndex; i++){
+    const s = dayState(days, i);
+    if(s === 'done'){ cur++; bestStreak = Math.max(bestStreak, cur); doneCount++; trackedCount++; }
+    else if(s === 'missed'){ cur = 0; trackedCount++; }
+    // pending: doesn't affect streak or counts
   }
-  const doneCount = days.slice(0,todayIndex+1).filter(d=>d===true).length;
-  const trackedCount = days.slice(0,todayIndex+1).filter(d=>d!==null).length;
   return { trailingMiss, bestStreak, doneCount, trackedCount };
 }
 
-function fmtDate(i){
-  const d = new Date(START_DATE); d.setDate(d.getDate()+i);
-  return d.getDate();
-}
-
 function render(){
+  const d = dateAt(todayIndex);
   document.getElementById('eyebrow').textContent =
-    'Day ' + (todayIndex+1) + ' of 30 \u00b7 Aug 1\u201330, 2026';
+    'Day ' + (todayIndex+1) + ' of 30 \u00b7 ' + fmtLong(todayIndex) + ', 2026';
+  document.getElementById('panelTitle').textContent = 'Habits \u2014 tap TODAY to check in';
+  document.getElementById('todayColLabel').textContent = 'Today ' + fmtLong(todayIndex).replace(' ', ' ');
 
   const dateStrip = document.getElementById('dateStrip');
-  dateStrip.innerHTML = Array.from({length:30}).map((_,i) =>
-    `<div class="date-cell${i===todayIndex?' is-today':''}">${fmtDate(i)}</div>`
-  ).join('');
+  dateStrip.innerHTML = todayIndex === 0 ? '' :
+    Array.from({length: todayIndex}).map((_,i) => `<div class="date-cell">${fmtShort(i)}</div>`).join('');
 
   const rowsEl = document.getElementById('rows');
   rowsEl.innerHTML = '';
@@ -239,27 +244,20 @@ function render(){
     totalDone += stat.doneCount;
     totalTracked += stat.trackedCount;
     if(stat.trailingMiss >= 1) atRisk++;
-    if(h.days[todayIndex] === true) doneToday++;
+    const todayDone = h.days[todayIndex] === true;
+    if(todayDone) doneToday++;
     if(stat.bestStreak > allBestStreak){ allBestStreak = stat.bestStreak; bestStreakHabit = h.name; }
 
-    const cellsHtml = h.days.map((d,i) => {
-      const isFuture = i > todayIndex;
-      const isToday = i === todayIndex;
-      const clickable = !isFuture;
-      let cls = 'cell';
-      if(isFuture) cls += ' future';
-      else if(d===true) cls += ' done';
-      else if(d===false){
-        const prev = i>0 ? h.days[i-1] : null;
-        cls += (prev===false) ? ' miss2' : ' miss1';
-      }
-      if(isToday) cls += ' today';
-      if(clickable) cls += ' clickable';
-      return `<div class="${cls}" data-h="${hIdx}" data-i="${i}"></div>`;
+    // history strip: only days before today, read-only
+    const cellsHtml = Array.from({length: todayIndex}).map((_,i) => {
+      const s = dayState(h.days, i);
+      if(s === 'done') return `<div class="cell done"></div>`;
+      const prevMissed = i>0 && dayState(h.days,i-1) === 'missed';
+      return `<div class="cell ${prevMissed ? 'miss2' : 'miss1'}"></div>`;
     }).join('');
 
     let statusLabel, statusClass;
-    if(stat.trackedCount === 0){ statusLabel = 'no data'; statusClass='muted'; }
+    if(stat.trackedCount === 0 && !todayDone){ statusLabel = 'no data'; statusClass='muted'; }
     else if(stat.trailingMiss >= 2){ statusLabel = stat.trailingMiss + 'd miss'; statusClass='bad'; }
     else if(stat.trailingMiss === 1){ statusLabel = '1 miss'; statusClass='warn'; }
     else { statusLabel = 'on track'; statusClass='good'; }
@@ -269,16 +267,20 @@ function render(){
     row.innerHTML = `
       <div class="row-name" title="${h.name}">${h.name}</div>
       <div class="strip">${cellsHtml}</div>
+      <div class="today-col">
+        <div class="today-box${todayDone?' checked':''}" data-h="${hIdx}" role="checkbox" aria-checked="${todayDone}" aria-label="Check in ${h.name} for today">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0d1410" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg>
+        </div>
+      </div>
       <div class="row-status ${statusClass}">${statusLabel}</div>
     `;
     rowsEl.appendChild(row);
   });
 
-  rowsEl.querySelectorAll('.cell.clickable').forEach(cell => {
-    cell.addEventListener('click', () => {
-      const hIdx = +cell.dataset.h, i = +cell.dataset.i;
-      const cur = habits[hIdx].days[i];
-      habits[hIdx].days[i] = cur === null ? true : (cur === true ? false : null);
+  rowsEl.querySelectorAll('.today-box').forEach(box => {
+    box.addEventListener('click', () => {
+      const hIdx = +box.dataset.h;
+      habits[hIdx].days[todayIndex] = habits[hIdx].days[todayIndex] === true ? null : true;
       saveHabits();
       render();
     });
@@ -291,9 +293,9 @@ function render(){
   document.getElementById('kpi-total').textContent = totalDone;
 
   const banner = document.getElementById('banner');
-  if(totalTracked === 0){
+  if(totalTracked === 0 && doneToday === 0){
     banner.className = 'banner start';
-    banner.textContent = 'Nothing logged yet. Tap today\u2019s cells below to start day 1.';
+    banner.textContent = 'Nothing logged yet. Check in today\u2019s box for each habit to start day 1.';
   } else if(atRisk > 0){
     banner.className = 'banner risk';
     banner.textContent = atRisk + (atRisk===1 ? ' habit needs' : ' habits need') + ' a check-in today to stop the slide.';
@@ -306,11 +308,15 @@ function render(){
   weekBars.innerHTML = '';
   for(let w=0; w<5; w++){
     const start = w*7, end = Math.min(start+7, 30);
-    let d=0,t=0;
+    let done=0, tracked=0;
     habits.forEach(h=>{
-      for(let i=start;i<end && i<=todayIndex;i++){ if(h.days[i]!==null){ t++; if(h.days[i]===true) d++; } }
+      for(let i=start;i<end && i<=todayIndex;i++){
+        const s = dayState(h.days, i);
+        if(s === 'pending') continue;
+        tracked++; if(s === 'done') done++;
+      }
     });
-    const pct = t ? Math.round(100*d/t) : null;
+    const pct = tracked ? Math.round(100*done/tracked) : null;
     const col = document.createElement('div');
     col.className = 'bar-col';
     col.innerHTML = `<div class="bar-pct">${pct===null?'\u2013':pct+'%'}</div><div class="bar${pct===null?' empty':''}" style="height:${pct===null?2:Math.max(pct,3)}%"></div><div class="bar-wk">W${w+1}</div>`;
