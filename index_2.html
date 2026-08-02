@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12151A; --panel:#1A1E25; --panel-2:#20242C; --border:#2B303A;
+    --text:#E9ECF1; --text-dim:#8A93A3; --text-faint:#565F70;
+    --green:#3FBE8E; --green-dim:#1F3D33;
+    --amber:#E3A73B; --amber-dim:#3D3421;
+    --red:#E2564E; --red-dim:#3D2422;
+    --gray-cell:#252A33; --gray-future:#1C2027;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;padding:20px 16px 60px;}
+  .wrap{max-width:960px;margin:0 auto;}
+
+  header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--border);padding-bottom:18px;}
+  .brand-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px;}
+  h1{font-size:22px;font-weight:600;letter-spacing:-0.01em;}
+  .live-badge{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--green);letter-spacing:.06em;}
+  .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @media (prefers-reduced-motion: reduce){.live-dot{animation:none}}
+
+  .why-panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;}
+  .why-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);white-space:nowrap;padding-top:2px;}
+  .why-text{flex:1;font-size:13.5px;color:var(--text-dim);line-height:1.5;outline:none;transition:filter .15s ease;}
+  .why-text:focus{color:var(--text);}
+  .why-text.blurred{filter:blur(6px);user-select:none;}
+  .eye-btn{background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);width:30px;height:30px;border-radius:7px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .eye-btn:hover{color:var(--text);}
+
+  .banner{border-radius:10px;padding:11px 16px;margin-bottom:16px;font-size:13px;font-weight:500;border:1px solid;}
+  .banner.risk{background:var(--red-dim);border-color:#5a2f2c;color:#F3A8A3;}
+  .banner.clear{background:var(--green-dim);border-color:#2b5346;color:#9FE2C6;}
+  .banner.start{background:var(--panel-2);border-color:var(--border);color:var(--text-dim);}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 14px 12px;}
+  .kpi-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;}
+  .kpi-value{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;line-height:1;}
+  .kpi-value.warn{color:var(--red)} .kpi-value.good{color:var(--green)}
+  .kpi-sub{font-size:11px;color:var(--text-dim);margin-top:6px;}
+
+  .charts{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:16px;}
+  .chart-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+  .chart-title{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px;}
+  .bars{display:flex;align-items:flex-end;gap:8px;height:90px;}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+  .bar{width:100%;background:var(--green);border-radius:3px 3px 0 0;min-height:2px;}
+  .bar.empty{background:var(--gray-cell);}
+  .bar-pct{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+  .bar-wk{font-size:10px;color:var(--text-faint);margin-top:6px;}
+  .donut-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .donut-num{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;}
+  .donut-sub{font-size:10px;color:var(--text-dim);margin-top:2px;}
+
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
+  .panel-title{font-size:13px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;}
+  .legend{display:flex;gap:14px;font-size:11px;color:var(--text-dim);align-items:center;}
+  .legend span{display:flex;align-items:center;gap:5px;}
+  .swatch{width:9px;height:9px;border-radius:2px;display:inline-block;}
+
+  .date-row{display:flex;align-items:center;gap:12px;padding:6px 18px 4px;border-bottom:1px solid var(--border);}
+  .date-row .row-name{width:120px;flex-shrink:0;}
+  .date-strip{display:flex;gap:3px;flex:1;}
+  .date-cell{flex:1;min-width:5px;max-width:12px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--text-faint);}
+  .date-cell.is-today{color:var(--text);font-weight:600;}
+  .date-row .row-status{width:82px;flex-shrink:0;}
+
+  .row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-top:1px solid var(--border);}
+  .row:first-of-type{border-top:none;}
+  .row-name{width:120px;flex-shrink:0;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .strip{display:flex;gap:3px;flex:1;flex-wrap:nowrap;overflow:hidden;}
+  .cell{flex:1;min-width:5px;max-width:12px;height:22px;border-radius:2px;background:var(--gray-cell);}
+  .cell.done{background:var(--green);} .cell.miss1{background:var(--amber);} .cell.miss2{background:var(--red);}
+  .cell.future{background:var(--gray-future);}
+  .cell.clickable{cursor:pointer;}
+  .cell.clickable:hover{opacity:.75;}
+  .cell.today{border:1.5px solid var(--text);max-width:16px;border-radius:4px;}
+  .row-status{width:82px;flex-shrink:0;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;}
+  .row-status.good{color:var(--green);} .row-status.warn{color:var(--amber);} .row-status.bad{color:var(--red);} .row-status.muted{color:var(--text-faint);font-weight:500;}
+
+  footer{text-align:center;margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-faint);letter-spacing:.05em;}
+
+  @media (max-width:640px){
+    .kpis{grid-template-columns:repeat(2,1fr);}
+    .charts{grid-template-columns:1fr;}
+    .row-name{width:82px;font-size:12px;}
+    .row-status{width:54px;font-size:10px;}
+    .cell{max-width:8px;}
+    .cell.today{max-width:14px;}
+    .legend{display:none;}
+    .date-row .row-name{width:82px;}
+    .date-row .row-status{width:54px;}
+    .date-cell{max-width:8px;font-size:7.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="brand-eyebrow" id="eyebrow">Daily Discipline</div>
+      <h1>Habit Control</h1>
+    </div>
+    <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+  </header>
+
+  <div class="why-panel">
+    <div class="why-label">Why</div>
+    <div class="why-text" id="whyText" contenteditable="true" spellcheck="false">Health. My kid. My family. My parents. Myself. Every check is for them, and for who I become.</div>
+    <button class="eye-btn" id="eyeBtn" title="Toggle privacy">&#128065;</button>
+  </div>
+
+  <div class="banner" id="banner"></div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-label">Overall</div><div class="kpi-value" id="kpi-overall">—%</div><div class="kpi-sub">completion rate</div></div>
+    <div class="kpi"><div class="kpi-label">Best streak</div><div class="kpi-value good" id="kpi-streak">—</div><div class="kpi-sub" id="kpi-streak-name">days</div></div>
+    <div class="kpi"><div class="kpi-label">At risk</div><div class="kpi-value warn" id="kpi-risk">—</div><div class="kpi-sub">need a hit today</div></div>
+    <div class="kpi"><div class="kpi-label">Total logged</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">of 360 checks</div></div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-panel">
+      <div class="chart-title">Weekly completion trend</div>
+      <div class="bars" id="weekBars"></div>
+    </div>
+    <div class="chart-panel donut-wrap">
+      <div class="chart-title">Today</div>
+      <svg width="90" height="90" viewBox="0 0 90 90" id="donutSvg"></svg>
+      <div class="donut-num" id="donutNum">—</div>
+      <div class="donut-sub">habits checked</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title">Habits &mdash; tap a day to check in</div>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--green)"></i>done</span>
+        <span><i class="swatch" style="background:var(--amber)"></i>1 miss</span>
+        <span><i class="swatch" style="background:var(--red)"></i>2+ miss</span>
+      </div>
+    </div>
+    <div class="date-row">
+      <div class="row-name"></div>
+      <div class="date-strip" id="dateStrip"></div>
+      <div class="row-status"></div>
+    </div>
+    <div id="rows"></div>
+  </div>
+
+  <footer>LIVE ON THIS BROWSER — WILL SYNC TO AZURE ONCE THE API IS CONNECTED</footer>
+</div>
+
+<script>
+// ---- "Why" privacy toggle + light persistence ----
+const whyText = document.getElementById('whyText');
+const eyeBtn = document.getElementById('eyeBtn');
+try { const saved = localStorage.getItem('habitctl_why'); if (saved) whyText.textContent = saved; } catch(e) {}
+whyText.addEventListener('input', () => { try { localStorage.setItem('habitctl_why', whyText.textContent); } catch(e) {} });
+eyeBtn.addEventListener('click', () => whyText.classList.toggle('blurred'));
+
+// ---- Real 30-day window starting Aug 1, 2026, all blank until you check in ----
+const START_DATE = new Date('2026-08-01T00:00:00');
+const today = new Date();
+today.setHours(0,0,0,0);
+let todayIndex = Math.floor((today - START_DATE) / 86400000);
+todayIndex = Math.max(0, Math.min(29, todayIndex));
+
+function loadHabits(){
+  try {
+    const saved = localStorage.getItem('habitctl_data');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return [
+    { name: "Drink 3L water",        days: Array(30).fill(null) },
+    { name: "Gym by 7.30",           days: Array(30).fill(null) },
+    { name: "5 min book reading",    days: Array(30).fill(null) },
+    { name: "15 min study",          days: Array(30).fill(null) },
+    { name: "5 min meditation",      days: Array(30).fill(null) },
+    { name: "Supplements",           days: Array(30).fill(null) },
+    { name: "Worship God",           days: Array(30).fill(null) },
+    { name: "Gratitude book",        days: Array(30).fill(null) },
+    { name: "Healthifyme tracker",   days: Array(30).fill(null) },
+    { name: "No MSFT",               days: Array(30).fill(null) },
+    { name: "Hare Rama Hare Krishna",days: Array(30).fill(null) },
+    { name: "No weed",               days: Array(30).fill(null) },
+  ];
+}
+const habits = loadHabits();
+function saveHabits(){ try { localStorage.setItem('habitctl_data', JSON.stringify(habits)); } catch(e) {} }
+
+function computeStatus(days){
+  let trailingMiss = 0;
+  for(let i=todayIndex;i>=0;i--){
+    if(days[i]===null) continue;
+    if(days[i]===false){ trailingMiss++; } else { break; }
+  }
+  let bestStreak = 0, cur = 0;
+  for(let i=0;i<=todayIndex;i++){
+    if(days[i]===true){ cur++; bestStreak=Math.max(bestStreak,cur); } else if(days[i]===false){ cur=0; }
+  }
+  const doneCount = days.slice(0,todayIndex+1).filter(d=>d===true).length;
+  const trackedCount = days.slice(0,todayIndex+1).filter(d=>d!==null).length;
+  return { trailingMiss, bestStreak, doneCount, trackedCount };
+}
+
+function fmtDate(i){
+  const d = new Date(START_DATE); d.setDate(d.getDate()+i);
+  return d.getDate();
+}
+
+function render(){
+  document.getElementById('eyebrow').textContent =
+    'Day ' + (todayIndex+1) + ' of 30 \u00b7 Aug 1\u201330, 2026';
+
+  const dateStrip = document.getElementById('dateStrip');
+  dateStrip.innerHTML = Array.from({length:30}).map((_,i) =>
+    `<div class="date-cell${i===todayIndex?' is-today':''}">${fmtDate(i)}</div>`
+  ).join('');
+
+  const rowsEl = document.getElementById('rows');
+  rowsEl.innerHTML = '';
+  let allBestStreak = 0, bestStreakHabit = "";
+  let totalDone = 0, totalTracked = 0, atRisk = 0, doneToday = 0;
+
+  habits.forEach((h, hIdx) => {
+    const stat = computeStatus(h.days);
+    totalDone += stat.doneCount;
+    totalTracked += stat.trackedCount;
+    if(stat.trailingMiss >= 1) atRisk++;
+    if(h.days[todayIndex] === true) doneToday++;
+    if(stat.bestStreak > allBestStreak){ allBestStreak = stat.bestStreak; bestStreakHabit = h.name; }
+
+    const cellsHtml = h.days.map((d,i) => {
+      const isFuture = i > todayIndex;
+      const isToday = i === todayIndex;
+      const clickable = !isFuture;
+      let cls = 'cell';
+      if(isFuture) cls += ' future';
+      else if(d===true) cls += ' done';
+      else if(d===false){
+        const prev = i>0 ? h.days[i-1] : null;
+        cls += (prev===false) ? ' miss2' : ' miss1';
+      }
+      if(isToday) cls += ' today';
+      if(clickable) cls += ' clickable';
+      return `<div class="${cls}" data-h="${hIdx}" data-i="${i}"></div>`;
+    }).join('');
+
+    let statusLabel, statusClass;
+    if(stat.trackedCount === 0){ statusLabel = 'no data'; statusClass='muted'; }
+    else if(stat.trailingMiss >= 2){ statusLabel = stat.trailingMiss + 'd miss'; statusClass='bad'; }
+    else if(stat.trailingMiss === 1){ statusLabel = '1 miss'; statusClass='warn'; }
+    else { statusLabel = 'on track'; statusClass='good'; }
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="row-name" title="${h.name}">${h.name}</div>
+      <div class="strip">${cellsHtml}</div>
+      <div class="row-status ${statusClass}">${statusLabel}</div>
+    `;
+    rowsEl.appendChild(row);
+  });
+
+  rowsEl.querySelectorAll('.cell.clickable').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const hIdx = +cell.dataset.h, i = +cell.dataset.i;
+      const cur = habits[hIdx].days[i];
+      habits[hIdx].days[i] = cur === null ? true : (cur === true ? false : null);
+      saveHabits();
+      render();
+    });
+  });
+
+  document.getElementById('kpi-overall').textContent = totalTracked ? Math.round(100*totalDone/totalTracked)+'%' : '—';
+  document.getElementById('kpi-streak').textContent = allBestStreak || '—';
+  document.getElementById('kpi-streak-name').textContent = bestStreakHabit || 'no data yet';
+  document.getElementById('kpi-risk').textContent = atRisk;
+  document.getElementById('kpi-total').textContent = totalDone;
+
+  const banner = document.getElementById('banner');
+  if(totalTracked === 0){
+    banner.className = 'banner start';
+    banner.textContent = 'Nothing logged yet. Tap today\u2019s cells below to start day 1.';
+  } else if(atRisk > 0){
+    banner.className = 'banner risk';
+    banner.textContent = atRisk + (atRisk===1 ? ' habit needs' : ' habits need') + ' a check-in today to stop the slide.';
+  } else {
+    banner.className = 'banner clear';
+    banner.textContent = 'Every logged habit is on track. Keep today\'s streak alive.';
+  }
+
+  const weekBars = document.getElementById('weekBars');
+  weekBars.innerHTML = '';
+  for(let w=0; w<5; w++){
+    const start = w*7, end = Math.min(start+7, 30);
+    let d=0,t=0;
+    habits.forEach(h=>{
+      for(let i=start;i<end && i<=todayIndex;i++){ if(h.days[i]!==null){ t++; if(h.days[i]===true) d++; } }
+    });
+    const pct = t ? Math.round(100*d/t) : null;
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    col.innerHTML = `<div class="bar-pct">${pct===null?'\u2013':pct+'%'}</div><div class="bar${pct===null?' empty':''}" style="height:${pct===null?2:Math.max(pct,3)}%"></div><div class="bar-wk">W${w+1}</div>`;
+    weekBars.appendChild(col);
+  }
+
+  const total = habits.length;
+  const pct = total ? doneToday/total : 0;
+  const r = 36, c = 2*Math.PI*r;
+  const svg = document.getElementById('donutSvg');
+  svg.innerHTML = `
+    <circle cx="45" cy="45" r="${r}" fill="none" stroke="#252A33" stroke-width="9"/>
+    <circle cx="45" cy="45" r="${r}" fill="none" stroke="#3FBE8E" stroke-width="9"
+      stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}"
+      stroke-linecap="round" transform="rotate(-90 45 45)"/>
+  `;
+  document.getElementById('donutNum').textContent = doneToday + '/' + total;
+}
+
+render();
+</script>
+</body>
+</html>
