@@ -71,7 +71,7 @@
   .col-head .row-name{width:118px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text-faint);letter-spacing:.06em;text-transform:uppercase;}
   .date-strip{display:flex;gap:3px;flex:1;}
   .date-cell{flex:1;min-width:5px;max-width:12px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-faint);}
-  .col-head .today-col-label{width:52px;flex-shrink:0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text);font-weight:600;}
+  .col-head .today-col-label{width:104px;flex-shrink:0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text);font-weight:600;}
   .col-head .row-status{width:76px;flex-shrink:0;}
 
   .row{display:flex;align-items:center;gap:10px;padding:11px 18px;border-top:1px solid var(--border);}
@@ -80,12 +80,14 @@
   .strip{display:flex;gap:3px;flex:1;flex-wrap:nowrap;overflow:hidden;}
   .cell{flex:1;min-width:5px;max-width:12px;height:22px;border-radius:2px;background:var(--gray-cell);}
   .cell.done{background:var(--green);} .cell.miss1{background:var(--amber);} .cell.miss2{background:var(--red);}
+  .cell.clickable{cursor:pointer;}
+  .cell.clickable:active{opacity:.7;}
 
-  .today-col{width:64px;flex-shrink:0;display:flex;justify-content:center;}
-  .today-box{width:52px;height:52px;border-radius:12px;border:2px solid var(--border);background:var(--panel-2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.12s ease;}
+  .today-col{width:104px;flex-shrink:0;display:flex;justify-content:center;gap:8px;}
+  .today-box{width:46px;height:46px;border-radius:11px;border:2px solid var(--border);background:var(--panel-2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.12s ease;}
   .today-box:active{transform:scale(.92);}
   .today-box.checked{background:var(--green);border-color:var(--green);}
-  .today-box svg{width:26px;height:26px;opacity:0;transition:opacity .1s;}
+  .today-box svg{width:23px;height:23px;opacity:0;transition:opacity .1s;}
   .today-box.checked svg{opacity:1;}
 
   .row-status{width:76px;flex-shrink:0;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;}
@@ -102,9 +104,9 @@
     .legend{display:none;}
     .col-head .row-name{width:76px;}
     .col-head .row-status{width:48px;}
-    .col-head .today-col-label{width:52px;}
-    .today-col{width:52px;}
-    .today-box{width:42px;height:42px;}
+    .col-head .today-col-label{width:84px;font-size:8px;}
+    .today-col{width:84px;gap:5px;}
+    .today-box{width:37px;height:37px;}
     .date-cell{max-width:7px;font-size:7.5px;}
   }
 </style>
@@ -184,10 +186,23 @@ today.setHours(0,0,0,0);
 let todayIndex = Math.floor((today - START_DATE) / 86400000);
 todayIndex = Math.max(0, Math.min(29, todayIndex));
 
+// ---- Real backend: your deployed Azure Function API ----
+const API_BASE = 'https://habit-dashboard-api2026-fzf8a9hwgmgrgzdr.centralus-01.azurewebsites.net';
+
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function dateAt(i){ const d = new Date(START_DATE); d.setDate(d.getDate()+i); return d; }
 function fmtShort(i){ const d = dateAt(i); return d.getDate(); }
 function fmtLong(i){ const d = dateAt(i); return MONTHS[d.getMonth()] + ' ' + d.getDate(); }
+function toISODate(i){
+  const d = dateAt(i);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function dateStringToIndex(dateStr){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m-1, d); dt.setHours(0,0,0,0);
+  const diff = Math.round((dt - START_DATE) / 86400000);
+  return (diff < 0 || diff > 29) ? null : diff;
+}
 
 function loadHabits(){
   try { const saved = localStorage.getItem('habitctl_data_v2'); if (saved) return JSON.parse(saved); } catch(e) {}
@@ -198,12 +213,66 @@ function loadHabits(){
 const habits = loadHabits();
 function saveHabits(){ try { localStorage.setItem('habitctl_data_v2', JSON.stringify(habits)); } catch(e) {} }
 
-// state: 'future' | 'pending' (today, not yet checked) | 'done' | 'missed'
+function setSyncBadge(state){
+  const dot = document.querySelector('.live-dot');
+  const label = document.querySelector('.live-badge');
+  if(!label) return;
+  if(state === 'synced'){ label.style.color = 'var(--green)'; label.lastChild.textContent = 'SYNCED'; if(dot) dot.style.background='var(--green)'; }
+  else if(state === 'syncing'){ label.style.color = 'var(--text-dim)'; label.lastChild.textContent = 'SYNCING'; if(dot) dot.style.background='var(--text-dim)'; }
+  else { label.style.color = 'var(--red)'; label.lastChild.textContent = 'OFFLINE'; if(dot) dot.style.background='var(--red)'; }
+}
+
+async function loadFromCloud(){
+  setSyncBadge('syncing');
+  try {
+    const res = await fetch(API_BASE + '/api/habits');
+    if(!res.ok) throw new Error('bad response ' + res.status);
+    const entries = await res.json();
+    entries.forEach(e => {
+      const hIdx = habits.findIndex(h => h.name === e.habit);
+      if(hIdx === -1) return;
+      const dIdx = dateStringToIndex(e.date);
+      if(dIdx === null) return;
+      habits[hIdx].days[dIdx] = e.done === true ? true : null;
+    });
+    saveHabits();
+    setSyncBadge('synced');
+  } catch(err) {
+    console.error('Cloud load failed, using local cache', err);
+    setSyncBadge('offline');
+  }
+}
+
+async function saveToCloud(habitName, i, value){
+  try {
+    const res = await fetch(API_BASE + '/api/checkin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ habit: habitName, date: toISODate(i), done: value === true })
+    });
+    if(!res.ok) throw new Error('bad response ' + res.status);
+    setSyncBadge('synced');
+  } catch(err) {
+    console.error('Cloud save failed, kept locally only', err);
+    setSyncBadge('offline');
+  }
+}
+
+function setDay(hIdx, i, value){
+  habits[hIdx].days[i] = value;
+  saveHabits();
+  render();
+  saveToCloud(habits[hIdx].name, i, value);
+}
+
+// state: 'future' | 'pending' (today or yesterday, still editable) | 'done' | 'missed'
+const GRACE_DAYS = 1; // how many days back you can still fill in
 function dayState(days, i){
   if(i > todayIndex) return 'future';
-  if(i === todayIndex) return days[i] === true ? 'done' : 'pending';
+  if(i >= todayIndex - GRACE_DAYS) return days[i] === true ? 'done' : 'pending';
   return days[i] === true ? 'done' : 'missed';
 }
+function isEditable(i){ return i <= todayIndex && i >= todayIndex - GRACE_DAYS; }
 
 function computeStatus(days){
   let trailingMiss = 0;
@@ -227,12 +296,16 @@ function render(){
   const d = dateAt(todayIndex);
   document.getElementById('eyebrow').textContent =
     'Day ' + (todayIndex+1) + ' of 30 \u00b7 ' + fmtLong(todayIndex) + ', 2026';
-  document.getElementById('panelTitle').textContent = 'Habits \u2014 tap TODAY to check in';
-  document.getElementById('todayColLabel').textContent = 'Today ' + fmtLong(todayIndex).replace(' ', ' ');
+  document.getElementById('panelTitle').textContent = 'Habits \u2014 tap to check in (today or yesterday)';
+  const editLabels = [];
+  for(let i = Math.max(0, todayIndex - GRACE_DAYS); i <= todayIndex; i++){
+    editLabels.push(i === todayIndex ? 'Today' : fmtShort(i)+' '+MONTHS[dateAt(i).getMonth()]);
+  }
+  document.getElementById('todayColLabel').textContent = editLabels.join(' / ');
 
+  const historyEnd = Math.max(0, todayIndex - GRACE_DAYS);
   const dateStrip = document.getElementById('dateStrip');
-  dateStrip.innerHTML = todayIndex === 0 ? '' :
-    Array.from({length: todayIndex}).map((_,i) => `<div class="date-cell">${fmtShort(i)}</div>`).join('');
+  dateStrip.innerHTML = Array.from({length: historyEnd}).map((_,i) => `<div class="date-cell">${fmtShort(i)}</div>`).join('');
 
   const rowsEl = document.getElementById('rows');
   rowsEl.innerHTML = '';
@@ -248,13 +321,23 @@ function render(){
     if(todayDone) doneToday++;
     if(stat.bestStreak > allBestStreak){ allBestStreak = stat.bestStreak; bestStreakHabit = h.name; }
 
-    // history strip: only days before today, read-only
-    const cellsHtml = Array.from({length: todayIndex}).map((_,i) => {
+    // history strip: fully-finalized days (before the grace window) — still editable for backfill/correction
+    const cellsHtml = Array.from({length: historyEnd}).map((_,i) => {
       const s = dayState(h.days, i);
-      if(s === 'done') return `<div class="cell done"></div>`;
+      if(s === 'done') return `<div class="cell done clickable" data-h="${hIdx}" data-i="${i}"></div>`;
       const prevMissed = i>0 && dayState(h.days,i-1) === 'missed';
-      return `<div class="cell ${prevMissed ? 'miss2' : 'miss1'}"></div>`;
+      return `<div class="cell ${prevMissed ? 'miss2' : 'miss1'} clickable" data-h="${hIdx}" data-i="${i}"></div>`;
     }).join('');
+
+    // editable checkboxes: yesterday (grace window) + today
+    let boxesHtml = '';
+    for(let i = Math.max(0, todayIndex - GRACE_DAYS); i <= todayIndex; i++){
+      const checked = h.days[i] === true;
+      boxesHtml += `
+        <div class="today-box${checked?' checked':''}" data-h="${hIdx}" data-i="${i}" role="checkbox" aria-checked="${checked}" aria-label="Check in ${h.name} for ${i===todayIndex?'today':'yesterday'}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0d1410" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg>
+        </div>`;
+    }
 
     let statusLabel, statusClass;
     if(stat.trackedCount === 0 && !todayDone){ statusLabel = 'no data'; statusClass='muted'; }
@@ -267,22 +350,25 @@ function render(){
     row.innerHTML = `
       <div class="row-name" title="${h.name}">${h.name}</div>
       <div class="strip">${cellsHtml}</div>
-      <div class="today-col">
-        <div class="today-box${todayDone?' checked':''}" data-h="${hIdx}" role="checkbox" aria-checked="${todayDone}" aria-label="Check in ${h.name} for today">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#0d1410" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg>
-        </div>
-      </div>
+      <div class="today-col">${boxesHtml}</div>
       <div class="row-status ${statusClass}">${statusLabel}</div>
     `;
     rowsEl.appendChild(row);
   });
 
+  rowsEl.querySelectorAll('.cell.clickable').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const hIdx = +cell.dataset.h, i = +cell.dataset.i;
+      const cur = habits[hIdx].days[i];
+      setDay(hIdx, i, cur === true ? null : true);
+    });
+  });
+
   rowsEl.querySelectorAll('.today-box').forEach(box => {
     box.addEventListener('click', () => {
-      const hIdx = +box.dataset.h;
-      habits[hIdx].days[todayIndex] = habits[hIdx].days[todayIndex] === true ? null : true;
-      saveHabits();
-      render();
+      const hIdx = +box.dataset.h, i = +box.dataset.i;
+      const cur = habits[hIdx].days[i];
+      setDay(hIdx, i, cur === true ? null : true);
     });
   });
 
@@ -335,8 +421,10 @@ function render(){
   `;
   document.getElementById('donutNum').textContent = doneToday + '/' + total;
 }
-
-render();
-</script>
+async function init(){
+  await loadFromCloud();
+  render();
+}
+init();
 </body>
 </html>
