@@ -13,11 +13,12 @@
     --green:#3FBE8E; --green-dim:#1F3D33;
     --amber:#E3A73B; --amber-dim:#3D3421;
     --red:#E2564E; --red-dim:#3D2422;
+    --gold:#D4AF6A;
     --gray-cell:#252A33; --gray-future:#1C2027;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;padding:20px 16px 60px;}
-  .wrap{max-width:960px;margin:0 auto;}
+  .wrap{max-width:980px;margin:0 auto;}
 
   header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--border);padding-bottom:18px;}
   .brand-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px;}
@@ -41,11 +42,12 @@
   .banner.start{background:var(--panel-2);border-color:var(--border);color:var(--text-dim);}
 
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
-  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 14px 12px;}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 14px 12px;position:relative;}
   .kpi-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;}
   .kpi-value{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;line-height:1;}
-  .kpi-value.warn{color:var(--red)} .kpi-value.good{color:var(--green)}
+  .kpi-value.warn{color:var(--red)} .kpi-value.good{color:var(--green)} .kpi-value.gold{color:var(--gold)}
   .kpi-sub{font-size:11px;color:var(--text-dim);margin-top:6px;}
+  .green-day-pill{position:absolute;top:10px;right:10px;font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--green-dim);color:var(--green);padding:2px 7px;border-radius:20px;letter-spacing:.04em;}
 
   .charts{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:16px;}
   .chart-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
@@ -68,20 +70,30 @@
   .swatch{width:9px;height:9px;border-radius:2px;display:inline-block;}
 
   .col-head{display:flex;align-items:center;gap:10px;padding:8px 18px 6px;border-bottom:1px solid var(--border);}
-  .col-head .row-name{width:118px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text-faint);letter-spacing:.06em;text-transform:uppercase;}
+  .col-head .row-name{width:150px;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text-faint);letter-spacing:.06em;text-transform:uppercase;}
   .date-strip{display:flex;gap:3px;flex:1;}
   .date-cell{flex:1;min-width:5px;max-width:12px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-faint);}
   .col-head .today-col-label{width:104px;flex-shrink:0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text);font-weight:600;}
   .col-head .row-status{width:76px;flex-shrink:0;}
 
-  .row{display:flex;align-items:center;gap:10px;padding:11px 18px;border-top:1px solid var(--border);}
+  .row{display:flex;align-items:center;gap:10px;padding:11px 18px;border-top:1px solid var(--border);transition:background .2s;}
   .row:first-of-type{border-top:none;}
-  .row-name{width:118px;flex-shrink:0;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .row.in-window{background:linear-gradient(90deg, rgba(212,175,106,0.08), transparent 60%);}
+  .row-name-wrap{width:150px;flex-shrink:0;overflow:hidden;}
+  .row-name{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:5px;}
+  .weight-dots{display:flex;gap:2px;flex-shrink:0;}
+  .weight-dot{width:4px;height:4px;border-radius:50%;background:var(--text-faint);}
+  .weight-dot.on{background:var(--gold);}
+  .row-meta{font-size:9.5px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;margin-top:1px;display:flex;gap:5px;}
+  .slot-tag{padding:0 4px;border-radius:3px;background:var(--panel-2);}
+  .slot-tag.now{background:var(--gold);color:#1a1508;font-weight:600;}
+
   .strip{display:flex;gap:3px;flex:1;flex-wrap:nowrap;overflow:hidden;}
-  .cell{flex:1;min-width:5px;max-width:12px;height:22px;border-radius:2px;background:var(--gray-cell);}
+  .cell{flex:1;min-width:5px;max-width:12px;height:22px;border-radius:2px;background:var(--gray-cell);position:relative;}
   .cell.done{background:var(--green);} .cell.miss1{background:var(--amber);} .cell.miss2{background:var(--red);}
   .cell.clickable{cursor:pointer;}
   .cell.clickable:active{opacity:.7;}
+  .cell.has-reason::after{content:'';position:absolute;top:-2px;right:-1px;width:4px;height:4px;border-radius:50%;background:var(--text);}
 
   .today-col{width:104px;flex-shrink:0;display:flex;justify-content:center;gap:8px;}
   .today-box{width:46px;height:46px;border-radius:11px;border:2px solid var(--border);background:var(--panel-2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.12s ease;}
@@ -95,14 +107,22 @@
 
   footer{text-align:center;margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-faint);letter-spacing:.05em;}
 
+  .reason-popup{position:fixed;z-index:50;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:4px;min-width:150px;}
+  .reason-popup button{background:var(--panel);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:12px;padding:7px 10px;border-radius:7px;cursor:pointer;text-align:left;}
+  .reason-popup button:hover{border-color:var(--text-dim);}
+  .reason-popup button.done-btn{color:var(--green);border-color:var(--green-dim);}
+  .reason-backdrop{position:fixed;inset:0;z-index:49;}
+
   @media (max-width:640px){
     .kpis{grid-template-columns:repeat(2,1fr);}
     .charts{grid-template-columns:1fr;}
-    .row-name{width:76px;font-size:11.5px;}
+    .row-name-wrap{width:96px;}
+    .row-name{font-size:11.5px;}
+    .row-meta{display:none;}
     .row-status{width:48px;font-size:9.5px;}
     .cell{max-width:7px;}
     .legend{display:none;}
-    .col-head .row-name{width:76px;}
+    .col-head .row-name{width:96px;}
     .col-head .row-status{width:48px;}
     .col-head .today-col-label{width:84px;font-size:8px;}
     .today-col{width:84px;gap:5px;}
@@ -131,22 +151,22 @@
   <div class="banner" id="banner"></div>
 
   <div class="kpis">
-    <div class="kpi"><div class="kpi-label">Overall</div><div class="kpi-value" id="kpi-overall">—%</div><div class="kpi-sub">completion rate</div></div>
-    <div class="kpi"><div class="kpi-label">Best streak</div><div class="kpi-value good" id="kpi-streak">—</div><div class="kpi-sub" id="kpi-streak-name">days</div></div>
+    <div class="kpi"><div id="greenPill" class="green-day-pill" style="display:none">GREEN DAY</div><div class="kpi-label">Today's score</div><div class="kpi-value" id="kpi-score">—%</div><div class="kpi-sub">weighted execution</div></div>
+    <div class="kpi"><div class="kpi-label">Green days</div><div class="kpi-value gold" id="kpi-green">—</div><div class="kpi-sub" id="kpi-green-sub">of elapsed days</div></div>
+    <div class="kpi"><div class="kpi-label">Rebound index</div><div class="kpi-value good" id="kpi-rebound">—</div><div class="kpi-sub" id="kpi-rebound-sub">recovery after a miss</div></div>
     <div class="kpi"><div class="kpi-label">At risk</div><div class="kpi-value warn" id="kpi-risk">—</div><div class="kpi-sub">need a hit today</div></div>
-    <div class="kpi"><div class="kpi-label">Total logged</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">of 360 checks</div></div>
   </div>
 
   <div class="charts">
     <div class="chart-panel">
-      <div class="chart-title">Weekly completion trend</div>
+      <div class="chart-title">Weekly execution score</div>
       <div class="bars" id="weekBars"></div>
     </div>
     <div class="chart-panel donut-wrap">
       <div class="chart-title">Today</div>
       <svg width="90" height="90" viewBox="0 0 90 90" id="donutSvg"></svg>
       <div class="donut-num" id="donutNum">—</div>
-      <div class="donut-sub">habits checked</div>
+      <div class="donut-sub">execution score</div>
     </div>
   </div>
 
@@ -168,30 +188,29 @@
     <div id="rows"></div>
   </div>
 
-  <footer>LIVE ON THIS BROWSER — WILL SYNC TO AZURE ONCE THE API IS CONNECTED</footer>
+  <footer>SYNCED TO AZURE TABLE STORAGE &middot; BEHAVIORAL HABIT ENGINE</footer>
 </div>
 
 <script>
-// ---- "Why" privacy toggle + light persistence ----
+// ================= WHY PANEL =================
 const whyText = document.getElementById('whyText');
 const eyeBtn = document.getElementById('eyeBtn');
 try { const saved = localStorage.getItem('habitctl_why'); if (saved) whyText.textContent = saved; } catch(e) {}
 whyText.addEventListener('input', () => { try { localStorage.setItem('habitctl_why', whyText.textContent); } catch(e) {} });
 eyeBtn.addEventListener('click', () => whyText.classList.toggle('blurred'));
 
-// ---- Real 30-day window starting Aug 1, 2026 ----
+// ================= TIME WINDOW =================
 const START_DATE = new Date('2026-08-01T00:00:00');
 const today = new Date();
 today.setHours(0,0,0,0);
 let todayIndex = Math.floor((today - START_DATE) / 86400000);
 todayIndex = Math.max(0, Math.min(29, todayIndex));
-
-// ---- Real backend: your deployed Azure Function API ----
-const API_BASE = 'https://habit-dashboard-api2026-fzf8a9hwgmgrgzdr.centralus-01.azurewebsites.net';
+const GRACE_DAYS = 1;
+const DAILY_TARGET = 85;
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function dateAt(i){ const d = new Date(START_DATE); d.setDate(d.getDate()+i); return d; }
-function fmtShort(i){ const d = dateAt(i); return d.getDate(); }
+function fmtShort(i){ return dateAt(i).getDate(); }
 function fmtLong(i){ const d = dateAt(i); return MONTHS[d.getMonth()] + ' ' + d.getDate(); }
 function toISODate(i){
   const d = dateAt(i);
@@ -203,15 +222,60 @@ function dateStringToIndex(dateStr){
   const diff = Math.round((dt - START_DATE) / 86400000);
   return (diff < 0 || diff > 29) ? null : diff;
 }
+function currentTimeSlot(){
+  const h = new Date().getHours();
+  if(h < 12) return 'MORNING';
+  if(h < 17) return 'MIDDAY';
+  return 'EVENING';
+}
 
+// ================= HABIT DEFINITIONS =================
+// category: 'Foundation' | 'Deep Work' | 'Recovery' | 'Connection'
+// weightScore: 3 = Tier 1 (Anchor), 2 = Tier 2 (Core), 1 = Tier 3 (Support)
+const HABIT_DEFS = [
+  { habitId:'gym',         title:'Gym by 7.30',            category:'Foundation', weightScore:3, frequencyPattern:'DAILY', timeSlot:'MORNING' },
+  { habitId:'meditation',  title:'5 min meditation',       category:'Recovery',   weightScore:3, frequencyPattern:'DAILY', timeSlot:'MORNING' },
+  { habitId:'noweed',      title:'No weed',                category:'Recovery',   weightScore:3, frequencyPattern:'DAILY', timeSlot:'ANYTIME' },
+  { habitId:'water',       title:'Drink 3L water',         category:'Foundation', weightScore:2, frequencyPattern:'DAILY', timeSlot:'ANYTIME' },
+  { habitId:'supplements', title:'Supplements',            category:'Foundation', weightScore:2, frequencyPattern:'DAILY', timeSlot:'MORNING' },
+  { habitId:'worship',     title:'Worship God',            category:'Connection', weightScore:2, frequencyPattern:'DAILY', timeSlot:'MORNING' },
+  { habitId:'healthify',   title:'Healthifyme tracker',    category:'Foundation', weightScore:2, frequencyPattern:'DAILY', timeSlot:'EVENING' },
+  { habitId:'nomsft',      title:'No MSFT',                category:'Recovery',   weightScore:2, frequencyPattern:'DAILY', timeSlot:'ANYTIME' },
+  { habitId:'reading',     title:'5 min book reading',     category:'Deep Work',  weightScore:1, frequencyPattern:'DAILY', timeSlot:'EVENING' },
+  { habitId:'study',       title:'15 min study',           category:'Deep Work',  weightScore:1, frequencyPattern:'DAILY', timeSlot:'EVENING' },
+  { habitId:'gratitude',   title:'Gratitude book',         category:'Connection', weightScore:1, frequencyPattern:'DAILY', timeSlot:'EVENING' },
+  { habitId:'mantra',      title:'Hare Rama Hare Krishna', category:'Connection', weightScore:1, frequencyPattern:'DAILY', timeSlot:'ANYTIME' },
+];
+
+const REASONS = [
+  { code:'SCHEDULE_SLIP', label:'Schedule slip' },
+  { code:'LOW_ENERGY', label:'Low energy' },
+  { code:'TRAVEL', label:'Travel' },
+  { code:'UNEXPECTED_PRIORITY', label:'Unexpected priority' },
+];
+
+function isApplicable(def, i){
+  if(def.frequencyPattern === 'DAILY') return true;
+  const dow = dateAt(i).getDay(); // 0 Sun .. 6 Sat
+  if(def.frequencyPattern === 'WEEKDAYS') return dow >= 1 && dow <= 5;
+  if(def.frequencyPattern === 'WEEKENDS') return dow === 0 || dow === 6;
+  return true;
+}
+
+// ================= API =================
+const API_BASE = 'https://habit-dashboard-api2026-fzf8a9hwgmgrgzdr.centralus-01.azurewebsites.net';
+
+// ================= STATE =================
+// each habit.days[i] is either null (no entry) or { status, reason, value }
 function loadHabits(){
-  try { const saved = localStorage.getItem('habitctl_data_v2'); if (saved) return JSON.parse(saved); } catch(e) {}
-  const names = ["Drink 3L water","Gym by 7.30","5 min book reading","15 min study","5 min meditation",
-    "Supplements","Worship God","Gratitude book","Healthifyme tracker","No MSFT","Hare Rama Hare Krishna","No weed"];
-  return names.map(name => ({ name, days: Array(30).fill(null) }));
+  try {
+    const saved = localStorage.getItem('habitctl_data_v3');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return HABIT_DEFS.map(def => ({ def, days: Array(30).fill(null) }));
 }
 const habits = loadHabits();
-function saveHabits(){ try { localStorage.setItem('habitctl_data_v2', JSON.stringify(habits)); } catch(e) {} }
+function saveHabits(){ try { localStorage.setItem('habitctl_data_v3', JSON.stringify(habits)); } catch(e) {} }
 
 function setSyncBadge(state){
   const dot = document.querySelector('.live-dot');
@@ -229,11 +293,15 @@ async function loadFromCloud(){
     if(!res.ok) throw new Error('bad response ' + res.status);
     const entries = await res.json();
     entries.forEach(e => {
-      const hIdx = habits.findIndex(h => h.name === e.habit);
+      const hIdx = habits.findIndex(h => h.def.title === e.habit);
       if(hIdx === -1) return;
       const dIdx = dateStringToIndex(e.date);
       if(dIdx === null) return;
-      habits[hIdx].days[dIdx] = e.done === true ? true : null;
+      habits[hIdx].days[dIdx] = {
+        status: e.status || (e.done ? 'COMPLETED' : 'MISSED'),
+        reason: e.missedReasonCategory || null,
+        value: e.numericValueLogged || null
+      };
     });
     saveHabits();
     setSyncBadge('synced');
@@ -243,12 +311,19 @@ async function loadFromCloud(){
   }
 }
 
-async function saveToCloud(habitName, i, value){
+async function saveToCloud(habitTitle, i, entry){
   try {
     const res = await fetch(API_BASE + '/api/checkin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ habit: habitName, date: toISODate(i), done: value === true })
+      body: JSON.stringify({
+        habit: habitTitle,
+        date: toISODate(i),
+        done: entry.status === 'COMPLETED',
+        status: entry.status,
+        missedReasonCategory: entry.reason || undefined,
+        numericValueLogged: entry.value || undefined
+      })
     });
     if(!res.ok) throw new Error('bad response ' + res.status);
     setSyncBadge('synced');
@@ -258,27 +333,31 @@ async function saveToCloud(habitName, i, value){
   }
 }
 
-function setDay(hIdx, i, value){
-  habits[hIdx].days[i] = value;
+function setDay(hIdx, i, entry){
+  habits[hIdx].days[i] = entry;
   saveHabits();
   render();
-  saveToCloud(habits[hIdx].name, i, value);
+  saveToCloud(habits[hIdx].def.title, i, entry);
 }
 
-// state: 'future' | 'pending' (today or yesterday, still editable) | 'done' | 'missed'
-const GRACE_DAYS = 1; // how many days back you can still fill in
+// ================= DAY STATE =================
+// 'future' | 'pending' | 'done' | 'missed' | 'buffer'
 function dayState(days, i){
   if(i > todayIndex) return 'future';
-  if(i >= todayIndex - GRACE_DAYS) return days[i] === true ? 'done' : 'pending';
-  return days[i] === true ? 'done' : 'missed';
+  const entry = days[i];
+  if(i >= todayIndex - GRACE_DAYS){
+    return (entry && entry.status === 'COMPLETED') ? 'done' : 'pending';
+  }
+  if(entry && entry.status === 'COMPLETED') return 'done';
+  if(entry && entry.status === 'SKIPPED_BUFFER') return 'buffer';
+  return 'missed';
 }
-function isEditable(i){ return i <= todayIndex && i >= todayIndex - GRACE_DAYS; }
 
 function computeStatus(days){
   let trailingMiss = 0;
   for(let i = todayIndex; i >= 0; i--){
     const s = dayState(days, i);
-    if(s === 'pending') continue;
+    if(s === 'pending' || s === 'buffer') continue;
     if(s === 'missed'){ trailingMiss++; continue; }
     if(s === 'done'){ break; }
   }
@@ -287,13 +366,86 @@ function computeStatus(days){
     const s = dayState(days, i);
     if(s === 'done'){ cur++; bestStreak = Math.max(bestStreak, cur); doneCount++; trackedCount++; }
     else if(s === 'missed'){ cur = 0; trackedCount++; }
-    // pending: doesn't affect streak or counts
   }
   return { trailingMiss, bestStreak, doneCount, trackedCount };
 }
 
+// ================= SCORING ENGINE =================
+function computeDayScore(i){
+  let earned = 0, possible = 0;
+  habits.forEach(h => {
+    if(!isApplicable(h.def, i)) return;
+    const s = dayState(h.days, i);
+    if(s === 'buffer' || s === 'future') return;
+    possible += h.def.weightScore;
+    if(s === 'done') earned += h.def.weightScore;
+  });
+  const pct = possible ? Math.round(100 * earned / possible) : null;
+  return { earned, possible, pct, isGreenDay: pct !== null && pct >= DAILY_TARGET };
+}
+
+function computeReboundIndex(){
+  let successes = 0, events = 0;
+  const finalizedEnd = todayIndex - GRACE_DAYS; // exclusive
+  habits.forEach(h => {
+    for(let i = 0; i < finalizedEnd; i++){
+      const s = dayState(h.days, i);
+      if(s !== 'missed') continue;
+      const prevS = i > 0 ? dayState(h.days, i-1) : 'done';
+      if(prevS === 'missed') continue; // part of an ongoing streak, not a new event
+      const nextIdx = i + 1;
+      if(nextIdx >= finalizedEnd) continue; // next day not finalized yet
+      events++;
+      if(dayState(h.days, nextIdx) === 'done') successes++;
+    }
+  });
+  return events ? { successes, events, pct: Math.round(100*successes/events) } : { successes:0, events:0, pct:null };
+}
+
+// ================= REASON POPUP =================
+function closeReasonPopup(){
+  document.querySelectorAll('.reason-popup, .reason-backdrop').forEach(el => el.remove());
+}
+function openReasonPopup(cellEl, hIdx, i){
+  closeReasonPopup();
+  const rect = cellEl.getBoundingClientRect();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'reason-backdrop';
+  backdrop.addEventListener('click', closeReasonPopup);
+  document.body.appendChild(backdrop);
+
+  const popup = document.createElement('div');
+  popup.className = 'reason-popup';
+  let top = rect.bottom + 6, left = rect.left - 60;
+  left = Math.max(8, Math.min(left, window.innerWidth - 170));
+  if(top + 220 > window.innerHeight) top = rect.top - 226;
+  popup.style.top = top + 'px';
+  popup.style.left = left + 'px';
+
+  const doneBtn = document.createElement('button');
+  doneBtn.className = 'done-btn';
+  doneBtn.textContent = '\u2713 Mark done instead';
+  doneBtn.addEventListener('click', () => {
+    setDay(hIdx, i, { status:'COMPLETED', reason:null, value:null });
+    closeReasonPopup();
+  });
+  popup.appendChild(doneBtn);
+
+  REASONS.forEach(r => {
+    const btn = document.createElement('button');
+    btn.textContent = r.label;
+    btn.addEventListener('click', () => {
+      setDay(hIdx, i, { status:'MISSED', reason:r.code, value:null });
+      closeReasonPopup();
+    });
+    popup.appendChild(btn);
+  });
+
+  document.body.appendChild(popup);
+}
+
+// ================= RENDER =================
 function render(){
-  const d = dateAt(todayIndex);
   document.getElementById('eyebrow').textContent =
     'Day ' + (todayIndex+1) + ' of 30 \u00b7 ' + fmtLong(todayIndex) + ', 2026';
   document.getElementById('panelTitle').textContent = 'Habits \u2014 tap to check in (today or yesterday)';
@@ -307,34 +459,33 @@ function render(){
   const dateStrip = document.getElementById('dateStrip');
   dateStrip.innerHTML = Array.from({length: historyEnd}).map((_,i) => `<div class="date-cell">${fmtShort(i)}</div>`).join('');
 
+  const nowSlot = currentTimeSlot();
   const rowsEl = document.getElementById('rows');
   rowsEl.innerHTML = '';
-  let allBestStreak = 0, bestStreakHabit = "";
-  let totalDone = 0, totalTracked = 0, atRisk = 0, doneToday = 0;
+  let atRisk = 0;
 
   habits.forEach((h, hIdx) => {
     const stat = computeStatus(h.days);
-    totalDone += stat.doneCount;
-    totalTracked += stat.trackedCount;
     if(stat.trailingMiss >= 1) atRisk++;
-    const todayDone = h.days[todayIndex] === true;
-    if(todayDone) doneToday++;
-    if(stat.bestStreak > allBestStreak){ allBestStreak = stat.bestStreak; bestStreakHabit = h.name; }
+    const todayEntry = h.days[todayIndex];
+    const todayDone = todayEntry && todayEntry.status === 'COMPLETED';
 
-    // history strip: fully-finalized days (before the grace window) — still editable for backfill/correction
     const cellsHtml = Array.from({length: historyEnd}).map((_,i) => {
       const s = dayState(h.days, i);
+      const entry = h.days[i];
+      const reasonMark = entry && entry.reason ? ' has-reason' : '';
       if(s === 'done') return `<div class="cell done clickable" data-h="${hIdx}" data-i="${i}"></div>`;
       const prevMissed = i>0 && dayState(h.days,i-1) === 'missed';
-      return `<div class="cell ${prevMissed ? 'miss2' : 'miss1'} clickable" data-h="${hIdx}" data-i="${i}"></div>`;
+      const title = entry && entry.reason ? REASONS.find(r=>r.code===entry.reason)?.label || '' : '';
+      return `<div class="cell ${prevMissed ? 'miss2' : 'miss1'}${reasonMark} clickable" data-h="${hIdx}" data-i="${i}" title="${title}"></div>`;
     }).join('');
 
-    // editable checkboxes: yesterday (grace window) + today
     let boxesHtml = '';
     for(let i = Math.max(0, todayIndex - GRACE_DAYS); i <= todayIndex; i++){
-      const checked = h.days[i] === true;
+      const entry = h.days[i];
+      const checked = entry && entry.status === 'COMPLETED';
       boxesHtml += `
-        <div class="today-box${checked?' checked':''}" data-h="${hIdx}" data-i="${i}" role="checkbox" aria-checked="${checked}" aria-label="Check in ${h.name} for ${i===todayIndex?'today':'yesterday'}">
+        <div class="today-box${checked?' checked':''}" data-h="${hIdx}" data-i="${i}" role="checkbox" aria-checked="${checked}" aria-label="Check in ${h.def.title}">
           <svg viewBox="0 0 24 24" fill="none" stroke="#0d1410" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg>
         </div>`;
     }
@@ -345,10 +496,19 @@ function render(){
     else if(stat.trailingMiss === 1){ statusLabel = '1 miss'; statusClass='warn'; }
     else { statusLabel = 'on track'; statusClass='good'; }
 
+    const inWindow = h.def.timeSlot === nowSlot;
+    const slotLabel = h.def.timeSlot === 'ANYTIME' ? 'ANY' : h.def.timeSlot.slice(0,3);
+
     const row = document.createElement('div');
-    row.className = 'row';
+    row.className = 'row' + (inWindow ? ' in-window' : '');
     row.innerHTML = `
-      <div class="row-name" title="${h.name}">${h.name}</div>
+      <div class="row-name-wrap">
+        <div class="row-name" title="${h.def.title}">
+          <span class="weight-dots">${[1,2,3].map(n=>`<span class="weight-dot${n<=h.def.weightScore?' on':''}"></span>`).join('')}</span>
+          ${h.def.title}
+        </div>
+        <div class="row-meta"><span class="slot-tag${inWindow?' now':''}">${slotLabel}</span><span>${h.def.category}</span></div>
+      </div>
       <div class="strip">${cellsHtml}</div>
       <div class="today-col">${boxesHtml}</div>
       <div class="row-status ${statusClass}">${statusLabel}</div>
@@ -357,70 +517,89 @@ function render(){
   });
 
   rowsEl.querySelectorAll('.cell.clickable').forEach(cell => {
-    cell.addEventListener('click', () => {
+    cell.addEventListener('click', (ev) => {
       const hIdx = +cell.dataset.h, i = +cell.dataset.i;
-      const cur = habits[hIdx].days[i];
-      setDay(hIdx, i, cur === true ? null : true);
+      const s = dayState(habits[hIdx].days, i);
+      if(s === 'done'){
+        setDay(hIdx, i, null); // undo directly, no popup needed
+      } else {
+        openReasonPopup(cell, hIdx, i); // missed: offer "mark done" or tag a reason
+      }
     });
   });
 
   rowsEl.querySelectorAll('.today-box').forEach(box => {
     box.addEventListener('click', () => {
       const hIdx = +box.dataset.h, i = +box.dataset.i;
-      const cur = habits[hIdx].days[i];
-      setDay(hIdx, i, cur === true ? null : true);
+      const entry = habits[hIdx].days[i];
+      const isDone = entry && entry.status === 'COMPLETED';
+      setDay(hIdx, i, isDone ? null : { status:'COMPLETED', reason:null, value:null });
     });
   });
 
-  document.getElementById('kpi-overall').textContent = totalTracked ? Math.round(100*totalDone/totalTracked)+'%' : '—';
-  document.getElementById('kpi-streak').textContent = allBestStreak || '—';
-  document.getElementById('kpi-streak-name').textContent = bestStreakHabit || 'no data yet';
-  document.getElementById('kpi-risk').textContent = atRisk;
-  document.getElementById('kpi-total').textContent = totalDone;
+  // ---- Scoring KPIs ----
+  const todayScore = computeDayScore(todayIndex);
+  document.getElementById('kpi-score').textContent = todayScore.pct === null ? '—%' : todayScore.pct + '%';
+  document.getElementById('greenPill').style.display = todayScore.isGreenDay ? 'block' : 'none';
 
+  let greenDays = 0;
+  for(let i=0;i<todayIndex;i++){ if(computeDayScore(i).isGreenDay) greenDays++; }
+  document.getElementById('kpi-green').textContent = todayIndex ? greenDays : '—';
+  document.getElementById('kpi-green-sub').textContent = 'of ' + todayIndex + ' elapsed days';
+
+  const rebound = computeReboundIndex();
+  document.getElementById('kpi-rebound').textContent = rebound.pct === null ? '—' : rebound.pct + '%';
+  document.getElementById('kpi-rebound-sub').textContent = rebound.events ? rebound.successes + '/' + rebound.events + ' misses recovered' : 'no misses yet';
+
+  document.getElementById('kpi-risk').textContent = atRisk;
+
+  // ---- Banner ----
   const banner = document.getElementById('banner');
-  if(totalTracked === 0 && doneToday === 0){
+  const anyData = habits.some(h => h.days.some(d => d));
+  if(!anyData){
     banner.className = 'banner start';
     banner.textContent = 'Nothing logged yet. Check in today\u2019s box for each habit to start day 1.';
   } else if(atRisk > 0){
     banner.className = 'banner risk';
     banner.textContent = atRisk + (atRisk===1 ? ' habit needs' : ' habits need') + ' a check-in today to stop the slide.';
+  } else if(todayScore.isGreenDay){
+    banner.className = 'banner clear';
+    banner.textContent = 'Green Day \u2014 ' + todayScore.pct + '% weighted execution. Keep it up.';
   } else {
     banner.className = 'banner clear';
-    banner.textContent = 'Every logged habit is on track. Keep today\'s streak alive.';
+    banner.textContent = 'Every habit on track. Push for a Green Day (85%+) today.';
   }
 
+  // ---- Weekly chart (weighted score, not raw ratio) ----
   const weekBars = document.getElementById('weekBars');
   weekBars.innerHTML = '';
   for(let w=0; w<5; w++){
     const start = w*7, end = Math.min(start+7, 30);
-    let done=0, tracked=0;
-    habits.forEach(h=>{
-      for(let i=start;i<end && i<=todayIndex;i++){
-        const s = dayState(h.days, i);
-        if(s === 'pending') continue;
-        tracked++; if(s === 'done') done++;
-      }
-    });
-    const pct = tracked ? Math.round(100*done/tracked) : null;
+    let earned=0, possible=0, any=false;
+    for(let i=start;i<end && i<=todayIndex;i++){
+      const s = computeDayScore(i);
+      if(s.pct !== null){ any = true; earned += s.earned; possible += s.possible; }
+    }
+    const pct = any && possible ? Math.round(100*earned/possible) : null;
     const col = document.createElement('div');
     col.className = 'bar-col';
     col.innerHTML = `<div class="bar-pct">${pct===null?'\u2013':pct+'%'}</div><div class="bar${pct===null?' empty':''}" style="height:${pct===null?2:Math.max(pct,3)}%"></div><div class="bar-wk">W${w+1}</div>`;
     weekBars.appendChild(col);
   }
 
-  const total = habits.length;
-  const pct = total ? doneToday/total : 0;
+  // ---- Today donut (weighted score) ----
+  const pctFrac = todayScore.pct === null ? 0 : todayScore.pct/100;
   const r = 36, c = 2*Math.PI*r;
   const svg = document.getElementById('donutSvg');
   svg.innerHTML = `
     <circle cx="45" cy="45" r="${r}" fill="none" stroke="#252A33" stroke-width="9"/>
-    <circle cx="45" cy="45" r="${r}" fill="none" stroke="#3FBE8E" stroke-width="9"
-      stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}"
+    <circle cx="45" cy="45" r="${r}" fill="none" stroke="${todayScore.isGreenDay?'#3FBE8E':'#E3A73B'}" stroke-width="9"
+      stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pctFrac)}"
       stroke-linecap="round" transform="rotate(-90 45 45)"/>
   `;
-  document.getElementById('donutNum').textContent = doneToday + '/' + total;
+  document.getElementById('donutNum').textContent = todayScore.pct === null ? '—' : todayScore.pct + '%';
 }
+
 async function init(){
   await loadFromCloud();
   render();
