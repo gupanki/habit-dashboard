@@ -13,20 +13,62 @@
     --green:#3FBE8E; --green-dim:#1F3D33;
     --amber:#E3A73B; --amber-dim:#3D3421;
     --red:#E2564E; --red-dim:#3D2422;
-    --gold:#D4AF6A;
+    --gold:#D4AF6A; --gold-dim:#3a3120;
     --gray-cell:#252A33; --gray-future:#1C2027;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;padding:20px 16px 60px;}
-  .wrap{max-width:980px;margin:0 auto;}
+  .wrap{max-width:980px;margin:0 auto;position:relative;}
 
   header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--border);padding-bottom:18px;}
   .brand-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px;}
   h1{font-size:22px;font-weight:600;letter-spacing:-0.01em;}
+  .header-right{display:flex;align-items:center;gap:10px;}
   .live-badge{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--green);letter-spacing:.06em;}
   .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
   @media (prefers-reduced-motion: reduce){.live-dot{animation:none}}
+
+  .insights-toggle{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 10px;border-radius:20px;cursor:pointer;}
+  .insights-toggle:hover{border-color:var(--text-dim);}
+  .insights-badge{background:var(--gold);color:#1a1508;font-weight:700;font-size:10px;padding:1px 6px;border-radius:10px;min-width:16px;text-align:center;}
+  .insights-badge.zero{background:var(--panel-2);color:var(--text-faint);}
+
+  .insights-drawer{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:none;flex-direction:column;gap:8px;}
+  .insight-card{border-left:3px solid var(--border);background:var(--panel-2);border-radius:0 8px 8px 0;padding:9px 12px;}
+  .insight-card.WARNING{border-color:var(--amber);}
+  .insight-card.SUCCESS{border-color:var(--green);}
+  .insight-card.IMBALANCE{border-color:var(--gold);}
+  .insight-title{font-size:12.5px;font-weight:600;margin-bottom:2px;}
+  .insight-msg{font-size:12px;color:var(--text-dim);}
+  .insight-action{font-size:11px;color:var(--text-faint);margin-top:3px;font-style:italic;}
+  .insight-empty{font-size:12.5px;color:var(--text-faint);text-align:center;padding:8px;}
+
+  .manage-toggle{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 10px;border-radius:20px;cursor:pointer;}
+  .manage-toggle:hover{border-color:var(--text-dim);}
+  .manage-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:none;flex-direction:column;gap:10px;}
+  .manage-row{display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
+  .manage-row input[type=text]{flex:1;background:transparent;border:none;color:var(--text);font-size:13px;font-family:'IBM Plex Sans',sans-serif;outline:none;min-width:0;}
+  .manage-row select{background:var(--panel);border:1px solid var(--border);color:var(--text-dim);font-size:11px;border-radius:6px;padding:4px 6px;font-family:'IBM Plex Mono',monospace;}
+  .manage-row .del-btn{background:var(--red-dim);border:1px solid #5a2f2c;color:#F3A8A3;font-size:11px;border-radius:6px;padding:5px 9px;cursor:pointer;flex-shrink:0;}
+  .manage-row .del-btn:hover{opacity:.85;}
+  .manage-add{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--border);padding-top:10px;}
+  .manage-add input[type=text]{flex:1;min-width:120px;background:var(--panel-2);border:1px solid var(--border);color:var(--text);font-size:13px;border-radius:6px;padding:7px 9px;font-family:'IBM Plex Sans',sans-serif;outline:none;}
+  .manage-add select{background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);font-size:11px;border-radius:6px;padding:6px;font-family:'IBM Plex Mono',monospace;}
+  .manage-add button{background:var(--green-dim);border:1px solid #2b5346;color:var(--green);font-size:12px;font-weight:600;border-radius:6px;padding:7px 12px;cursor:pointer;}
+  .manage-add button:hover{opacity:.85;}
+  .manage-empty{font-size:12.5px;color:var(--text-faint);text-align:center;padding:8px;}
+  .user-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-faint);letter-spacing:.05em;cursor:pointer;}
+  .user-tag:hover{color:var(--text-dim);}
+
+  .pin-gate{position:fixed;inset:0;background:var(--bg);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+  .pin-gate-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px 24px;max-width:320px;width:100%;text-align:center;}
+  .pin-gate-card h2{font-size:17px;margin-bottom:6px;}
+  .pin-gate-card p{font-size:12.5px;color:var(--text-dim);margin-bottom:16px;line-height:1.5;}
+  .pin-gate-card input{width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);font-size:20px;letter-spacing:.3em;padding:10px 12px;border-radius:8px;outline:none;margin-bottom:10px;font-family:'IBM Plex Mono',monospace;text-align:center;}
+  .pin-gate-card button{width:100%;background:var(--green-dim);border:1px solid #2b5346;color:var(--green);font-size:13px;font-weight:600;padding:10px;border-radius:8px;cursor:pointer;margin-top:2px;}
+  .pin-gate-card button:hover{opacity:.9;}
+  .pin-gate-error{color:var(--red);font-size:12px;margin-top:8px;display:none;}
 
   .why-panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;}
   .why-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);white-space:nowrap;padding-top:2px;}
@@ -38,6 +80,7 @@
 
   .banner{border-radius:10px;padding:11px 16px;margin-bottom:16px;font-size:13px;font-weight:500;border:1px solid;}
   .banner.risk{background:var(--red-dim);border-color:#5a2f2c;color:#F3A8A3;}
+  .banner.critical{background:var(--red-dim);border:2px solid var(--red);color:#FFD9D6;box-shadow:0 0 0 3px rgba(226,86,78,0.12);}
   .banner.clear{background:var(--green-dim);border-color:#2b5346;color:#9FE2C6;}
   .banner.start{background:var(--panel-2);border-color:var(--border);color:var(--text-dim);}
 
@@ -45,7 +88,7 @@
   .kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 14px 12px;position:relative;}
   .kpi-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;}
   .kpi-value{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;line-height:1;}
-  .kpi-value.warn{color:var(--red)} .kpi-value.good{color:var(--green)} .kpi-value.gold{color:var(--gold)}
+  .kpi-value.warn{color:var(--red)} .kpi-value.mid{color:var(--amber)} .kpi-value.good{color:var(--green)} .kpi-value.gold{color:var(--gold)}
   .kpi-sub{font-size:11px;color:var(--text-dim);margin-top:6px;}
   .green-day-pill{position:absolute;top:10px;right:10px;font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--green-dim);color:var(--green);padding:2px 7px;border-radius:20px;letter-spacing:.04em;}
 
@@ -62,7 +105,7 @@
   .donut-num{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;}
   .donut-sub{font-size:10px;color:var(--text-dim);margin-top:2px;}
 
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
   .panel-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
   .panel-title{font-size:13px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;}
   .legend{display:flex;gap:14px;font-size:11px;color:var(--text-dim);align-items:center;}
@@ -76,17 +119,21 @@
   .col-head .today-col-label{width:104px;flex-shrink:0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text);font-weight:600;}
   .col-head .row-status{width:76px;flex-shrink:0;}
 
-  .row{display:flex;align-items:center;gap:10px;padding:11px 18px;border-top:1px solid var(--border);transition:background .2s;}
-  .row:first-of-type{border-top:none;}
-  .row.in-window{background:linear-gradient(90deg, rgba(212,175,106,0.08), transparent 60%);}
+  .section-head{display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--panel-2);border-top:1px solid var(--border);}
+  .section-head.now{background:var(--gold-dim);}
+  .section-head .dot{width:6px;height:6px;border-radius:50%;background:var(--text-faint);}
+  .section-head.now .dot{background:var(--gold);}
+  .section-name{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);}
+  .section-head.now .section-name{color:var(--gold);}
+  .section-window{font-size:10px;color:var(--text-faint);}
+
+  .row{display:flex;align-items:center;gap:10px;padding:11px 18px;border-top:1px solid var(--border);}
   .row-name-wrap{width:150px;flex-shrink:0;overflow:hidden;}
   .row-name{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:5px;}
   .weight-dots{display:flex;gap:2px;flex-shrink:0;}
   .weight-dot{width:4px;height:4px;border-radius:50%;background:var(--text-faint);}
   .weight-dot.on{background:var(--gold);}
-  .row-meta{font-size:9.5px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;margin-top:1px;display:flex;gap:5px;}
-  .slot-tag{padding:0 4px;border-radius:3px;background:var(--panel-2);}
-  .slot-tag.now{background:var(--gold);color:#1a1508;font-weight:600;}
+  .row-meta{font-size:9.5px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;margin-top:1px;}
 
   .strip{display:flex;gap:3px;flex:1;flex-wrap:nowrap;overflow:hidden;}
   .cell{flex:1;min-width:5px;max-width:12px;height:22px;border-radius:2px;background:var(--gray-cell);position:relative;}
@@ -128,10 +175,32 @@
     .today-col{width:84px;gap:5px;}
     .today-box{width:37px;height:37px;}
     .date-cell{max-width:7px;font-size:7.5px;}
+    .section-window{display:none;}
   }
 </style>
 </head>
 <body>
+<div class="pin-gate" id="pinGateCreate">
+  <div class="pin-gate-card">
+    <h2>Set your PIN</h2>
+    <p>Protects this dashboard \u2014 you'll need it to get in next time, and no one else can see this without it.</p>
+    <input type="password" inputmode="numeric" maxlength="6" id="pinCreateInput" placeholder="New PIN">
+    <input type="password" inputmode="numeric" maxlength="6" id="pinConfirmInput" placeholder="Confirm PIN">
+    <button id="pinCreateBtn">Set PIN &amp; continue</button>
+    <div class="pin-gate-error" id="pinCreateError"></div>
+  </div>
+</div>
+
+<div class="pin-gate" id="pinGateEnter">
+  <div class="pin-gate-card">
+    <h2>Enter your PIN</h2>
+    <p>This device doesn't have your PIN remembered yet.</p>
+    <input type="password" inputmode="numeric" maxlength="6" id="pinEnterInput" placeholder="PIN">
+    <button id="pinEnterBtn">Unlock</button>
+    <div class="pin-gate-error" id="pinEnterError"></div>
+  </div>
+</div>
+
 <div class="wrap">
 
   <header>
@@ -139,8 +208,42 @@
       <div class="brand-eyebrow" id="eyebrow">Daily Discipline</div>
       <h1>Habit Control</h1>
     </div>
-    <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+    <div class="header-right">
+      <span class="user-tag" id="userTag"></span>
+      <div class="manage-toggle" id="manageToggle"><span>Manage habits</span></div>
+      <div class="insights-toggle" id="insightsToggle">
+        <span>Insights</span>
+        <span class="insights-badge zero" id="insightsBadge">0</span>
+      </div>
+      <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+    </div>
   </header>
+
+  <div class="manage-panel" id="managePanel">
+    <div id="manageList"></div>
+    <div class="manage-add">
+      <input type="text" id="newHabitTitle" placeholder="New habit name">
+      <select id="newHabitCategory">
+        <option value="Foundation">Foundation</option>
+        <option value="Deep Work">Deep Work</option>
+        <option value="Recovery">Recovery</option>
+        <option value="Connection">Connection</option>
+      </select>
+      <select id="newHabitWeight">
+        <option value="1">Tier 3 (1pt)</option>
+        <option value="2">Tier 2 (2pt)</option>
+        <option value="3">Tier 1 (3pt)</option>
+      </select>
+      <select id="newHabitSlot">
+        <option value="MORNING">Morning</option>
+        <option value="MIDDAY">Midday</option>
+        <option value="EVENING">Evening</option>
+      </select>
+      <button id="addHabitBtn">+ Add habit</button>
+    </div>
+  </div>
+
+  <div class="insights-drawer" id="insightsDrawer"></div>
 
   <div class="why-panel">
     <div class="why-label">Why</div>
@@ -172,7 +275,7 @@
 
   <div class="panel">
     <div class="panel-head">
-      <div class="panel-title" id="panelTitle">Habits</div>
+      <div class="panel-title">Habits &mdash; tap to check in (today or yesterday)</div>
       <div class="legend">
         <span><i class="swatch" style="background:var(--green)"></i>done</span>
         <span><i class="swatch" style="background:var(--amber)"></i>1 miss</span>
@@ -185,7 +288,7 @@
       <div class="today-col-label" id="todayColLabel">Today</div>
       <div class="row-status"></div>
     </div>
-    <div id="rows"></div>
+    <div id="sections"></div>
   </div>
 
   <footer>SYNCED TO AZURE TABLE STORAGE &middot; BEHAVIORAL HABIT ENGINE</footer>
@@ -199,6 +302,55 @@ try { const saved = localStorage.getItem('habitctl_why'); if (saved) whyText.tex
 whyText.addEventListener('input', () => { try { localStorage.setItem('habitctl_why', whyText.textContent); } catch(e) {} });
 eyeBtn.addEventListener('click', () => whyText.classList.toggle('blurred'));
 
+// ================= INSIGHTS DRAWER TOGGLE =================
+const insightsToggle = document.getElementById('insightsToggle');
+const insightsDrawer = document.getElementById('insightsDrawer');
+insightsToggle.addEventListener('click', () => {
+  insightsDrawer.style.display = insightsDrawer.style.display === 'flex' ? 'none' : 'flex';
+});
+
+// ================= MANAGE HABITS TOGGLE =================
+document.getElementById('manageToggle').addEventListener('click', () => {
+  const panel = document.getElementById('managePanel');
+  panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+});
+document.getElementById('addHabitBtn').addEventListener('click', () => {
+  const titleInp = document.getElementById('newHabitTitle');
+  const title = titleInp.value.trim();
+  if(!title) return;
+  const category = document.getElementById('newHabitCategory').value;
+  const weightScore = +document.getElementById('newHabitWeight').value;
+  const timeSlot = document.getElementById('newHabitSlot').value;
+  const habitId = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') + '-' + Math.random().toString(36).slice(2,7);
+  const def = { habitId, title, category, weightScore, timeSlot, isArchived:false };
+  habits.push({ def, days: Array(30).fill(null) });
+  saveHabits();
+  saveHabitDef(def);
+  titleInp.value = '';
+  render();
+});
+
+// ================= USER =================
+const urlParams = new URLSearchParams(location.search);
+const CURRENT_USER = urlParams.get('user');
+const DISPLAY_NAMES = { ankit: 'Titan', superwoman: 'SuperWoman' };
+function displayNameFor(userId){
+  if(DISPLAY_NAMES[userId]) return DISPLAY_NAMES[userId];
+  return userId ? userId.charAt(0).toUpperCase() + userId.slice(1) : '';
+}
+function applyDisplayName(){
+  const name = displayNameFor(CURRENT_USER);
+  document.getElementById('userTag').textContent = name;
+  document.querySelector('header h1').textContent = name ? (name + ' Control') : 'Habit Control';
+}
+
+const USER_PROFILE = {
+  userId: CURRENT_USER,
+  identityStatement: 'Health. My kid. My family. My parents. Myself. Every check is for them, and for who I become.',
+  dailyTargetScore: 85
+};
+const DAILY_TARGET = USER_PROFILE.dailyTargetScore;
+
 // ================= TIME WINDOW =================
 const START_DATE = new Date('2026-08-01T00:00:00');
 const today = new Date();
@@ -206,7 +358,6 @@ today.setHours(0,0,0,0);
 let todayIndex = Math.floor((today - START_DATE) / 86400000);
 todayIndex = Math.max(0, Math.min(29, todayIndex));
 const GRACE_DAYS = 1;
-const DAILY_TARGET = 85;
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function dateAt(i){ const d = new Date(START_DATE); d.setDate(d.getDate()+i); return d; }
@@ -222,29 +373,38 @@ function dateStringToIndex(dateStr){
   const diff = Math.round((dt - START_DATE) / 86400000);
   return (diff < 0 || diff > 29) ? null : diff;
 }
+// Morning Anchor 04:30-07:30, Midday 07:30-17:00, Evening 17:00-04:30 (wraps midnight)
 function currentTimeSlot(){
-  const h = new Date().getHours();
-  if(h < 12) return 'MORNING';
-  if(h < 17) return 'MIDDAY';
+  const now = new Date();
+  const h = now.getHours() + now.getMinutes()/60;
+  if(h >= 4.5 && h < 7.5) return 'MORNING';
+  if(h >= 7.5 && h < 17) return 'MIDDAY';
   return 'EVENING';
 }
 
 // ================= HABIT DEFINITIONS =================
-// category: 'Foundation' | 'Deep Work' | 'Recovery' | 'Connection'
-// weightScore: 3 = Tier 1 (Anchor), 2 = Tier 2 (Core), 1 = Tier 3 (Support)
-const HABIT_DEFS = [
-  { habitId:'gym',         title:'Gym by 7.30',            category:'Foundation', weightScore:3, frequencyPattern:'DAILY', timeSlot:'MORNING' },
-  { habitId:'meditation',  title:'5 min meditation',       category:'Recovery',   weightScore:3, frequencyPattern:'DAILY', timeSlot:'MORNING' },
-  { habitId:'noweed',      title:'No weed',                category:'Recovery',   weightScore:3, frequencyPattern:'DAILY', timeSlot:'ANYTIME' },
-  { habitId:'water',       title:'Drink 3L water',         category:'Foundation', weightScore:2, frequencyPattern:'DAILY', timeSlot:'ANYTIME' },
-  { habitId:'supplements', title:'Supplements',            category:'Foundation', weightScore:2, frequencyPattern:'DAILY', timeSlot:'MORNING' },
-  { habitId:'worship',     title:'Worship God',            category:'Connection', weightScore:2, frequencyPattern:'DAILY', timeSlot:'MORNING' },
-  { habitId:'healthify',   title:'Healthifyme tracker',    category:'Foundation', weightScore:2, frequencyPattern:'DAILY', timeSlot:'EVENING' },
-  { habitId:'nomsft',      title:'No MSFT',                category:'Recovery',   weightScore:2, frequencyPattern:'DAILY', timeSlot:'ANYTIME' },
-  { habitId:'reading',     title:'5 min book reading',     category:'Deep Work',  weightScore:1, frequencyPattern:'DAILY', timeSlot:'EVENING' },
-  { habitId:'study',       title:'15 min study',           category:'Deep Work',  weightScore:1, frequencyPattern:'DAILY', timeSlot:'EVENING' },
-  { habitId:'gratitude',   title:'Gratitude book',         category:'Connection', weightScore:1, frequencyPattern:'DAILY', timeSlot:'EVENING' },
-  { habitId:'mantra',      title:'Hare Rama Hare Krishna', category:'Connection', weightScore:1, frequencyPattern:'DAILY', timeSlot:'ANYTIME' },
+// DEFAULT_SEED_DEFS: only used to auto-seed the original 'ankit' account the first time
+// it has zero habit definitions in the database. New users (like a spouse) start empty
+// and build their own list via the Manage Habits panel.
+const DEFAULT_SEED_DEFS = [
+  { habitId:'gym',         title:'Gym by 7.30',            category:'Foundation', weightScore:3, timeSlot:'MORNING', isArchived:false },
+  { habitId:'meditation',  title:'5 min meditation',       category:'Recovery',   weightScore:3, timeSlot:'MORNING', isArchived:false },
+  { habitId:'supplements', title:'Supplements',            category:'Foundation', weightScore:2, timeSlot:'MORNING', isArchived:false },
+  { habitId:'worship',     title:'Worship God',            category:'Connection', weightScore:2, timeSlot:'MORNING', isArchived:false },
+  { habitId:'mantra',      title:'Hare Rama Hare Krishna', category:'Connection', weightScore:1, timeSlot:'MORNING', isArchived:false },
+  { habitId:'water',       title:'Drink 3L water',         category:'Foundation', weightScore:2, timeSlot:'MIDDAY',  isArchived:false },
+  { habitId:'nomsft',      title:'No MSFT',                category:'Recovery',   weightScore:2, timeSlot:'MIDDAY',  isArchived:false },
+  { habitId:'reading',     title:'5 min book reading',     category:'Deep Work',  weightScore:1, timeSlot:'EVENING', isArchived:false },
+  { habitId:'study',       title:'15 min study',           category:'Deep Work',  weightScore:1, timeSlot:'EVENING', isArchived:false },
+  { habitId:'gratitude',   title:'Gratitude book',         category:'Connection', weightScore:1, timeSlot:'EVENING', isArchived:false },
+  { habitId:'healthify',   title:'Healthifyme tracker',    category:'Foundation', weightScore:2, timeSlot:'EVENING', isArchived:false },
+  { habitId:'noweed',      title:'No weed',                category:'Recovery',   weightScore:3, timeSlot:'EVENING', isArchived:false },
+];
+
+const SECTIONS = [
+  { slot:'MORNING', name:'Morning Anchor', window:'04:30 \u2013 07:30' },
+  { slot:'MIDDAY',  name:'Midday Execution & Focus', window:'' },
+  { slot:'EVENING', name:'Evening Shutdown & Recovery', window:'' },
 ];
 
 const REASONS = [
@@ -254,28 +414,18 @@ const REASONS = [
   { code:'UNEXPECTED_PRIORITY', label:'Unexpected priority' },
 ];
 
-function isApplicable(def, i){
-  if(def.frequencyPattern === 'DAILY') return true;
-  const dow = dateAt(i).getDay(); // 0 Sun .. 6 Sat
-  if(def.frequencyPattern === 'WEEKDAYS') return dow >= 1 && dow <= 5;
-  if(def.frequencyPattern === 'WEEKENDS') return dow === 0 || dow === 6;
-  return true;
-}
-
 // ================= API =================
 const API_BASE = 'https://habit-dashboard-api2026-fzf8a9hwgmgrgzdr.centralus-01.azurewebsites.net';
 
 // ================= STATE =================
-// each habit.days[i] is either null (no entry) or { status, reason, value }
-function loadHabits(){
-  try {
-    const saved = localStorage.getItem('habitctl_data_v3');
-    if (saved) return JSON.parse(saved);
-  } catch(e) {}
-  return HABIT_DEFS.map(def => ({ def, days: Array(30).fill(null) }));
+function cacheKey(){ return 'habitctl_data_v5_' + CURRENT_USER; }
+function loadLocalCache(){
+  try { const saved = localStorage.getItem(cacheKey()); if (saved) return JSON.parse(saved); } catch(e) {}
+  return null;
 }
-const habits = loadHabits();
-function saveHabits(){ try { localStorage.setItem('habitctl_data_v3', JSON.stringify(habits)); } catch(e) {} }
+let habits = [];
+function saveHabits(){ try { localStorage.setItem(cacheKey(), JSON.stringify(habits)); } catch(e) {} }
+function saveHabits(){ try { localStorage.setItem('habitctl_data_v4', JSON.stringify(habits)); } catch(e) {} }
 
 function setSyncBadge(state){
   const dot = document.querySelector('.live-dot');
@@ -286,43 +436,61 @@ function setSyncBadge(state){
   else { label.style.color = 'var(--red)'; label.lastChild.textContent = 'OFFLINE'; if(dot) dot.style.background='var(--red)'; }
 }
 
-async function loadFromCloud(){
+async function loadDefsAndHabits(){
   setSyncBadge('syncing');
   try {
-    const res = await fetch(API_BASE + '/api/habits');
-    if(!res.ok) throw new Error('bad response ' + res.status);
-    const entries = await res.json();
-    entries.forEach(e => {
-      const hIdx = habits.findIndex(h => h.def.title === e.habit);
-      if(hIdx === -1) return;
-      const dIdx = dateStringToIndex(e.date);
-      if(dIdx === null) return;
-      habits[hIdx].days[dIdx] = {
-        status: e.status || (e.done ? 'COMPLETED' : 'MISSED'),
-        reason: e.missedReasonCategory || null,
-        value: e.numericValueLogged || null
-      };
-    });
+    const defsRes = await fetch(API_BASE + '/api/habitdefs?user=' + encodeURIComponent(CURRENT_USER) + '&pin=' + encodeURIComponent(CURRENT_PIN));
+    if(!defsRes.ok) throw new Error('bad response ' + defsRes.status);
+    let defs = (await defsRes.json()).filter(d => !d.isArchived);
+
+    if(defs.length === 0 && CURRENT_USER === 'ankit'){
+      // One-time seed: original account, first ever load, nothing in the database yet
+      for(const seed of DEFAULT_SEED_DEFS){
+        await fetch(API_BASE + '/api/habitdefs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: CURRENT_USER, pin: CURRENT_PIN, habitId: seed.habitId, title: seed.title, category: seed.category, weightScore: seed.weightScore, timeSlot: seed.timeSlot })
+        });
+      }
+      defs = DEFAULT_SEED_DEFS.map(d => ({ ...d }));
+    }
+
+    habits = defs.map(def => ({ def, days: Array(30).fill(null) }));
+
+    const entriesRes = await fetch(API_BASE + '/api/habits?user=' + encodeURIComponent(CURRENT_USER) + '&pin=' + encodeURIComponent(CURRENT_PIN));
+    if(entriesRes.ok){
+      const entries = await entriesRes.json();
+      entries.forEach(e => {
+        const hIdx = habits.findIndex(h => h.def.habitId === e.habitId);
+        if(hIdx === -1) return;
+        const dIdx = dateStringToIndex(e.date);
+        if(dIdx === null) return;
+        habits[hIdx].days[dIdx] = { status: e.status, reason: e.missedReasonCategory || null, value: e.numericValueLogged || null };
+      });
+    }
     saveHabits();
     setSyncBadge('synced');
   } catch(err) {
-    console.error('Cloud load failed, using local cache', err);
+    console.error('Cloud load failed, using local cache if available', err);
+    const cached = loadLocalCache();
+    if(cached) habits = cached;
     setSyncBadge('offline');
   }
 }
 
-async function saveToCloud(habitTitle, i, entry){
+async function saveToCloud(habitId, i, entry){
   try {
     const res = await fetch(API_BASE + '/api/checkin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        habit: habitTitle,
+        userId: CURRENT_USER,
+        pin: CURRENT_PIN,
+        habitId,
         date: toISODate(i),
-        done: entry.status === 'COMPLETED',
-        status: entry.status,
-        missedReasonCategory: entry.reason || undefined,
-        numericValueLogged: entry.value || undefined
+        status: entry ? entry.status : 'MISSED',
+        missedReasonCategory: entry && entry.reason || undefined,
+        numericValueLogged: entry && entry.value || undefined
       })
     });
     if(!res.ok) throw new Error('bad response ' + res.status);
@@ -333,11 +501,27 @@ async function saveToCloud(habitTitle, i, entry){
   }
 }
 
+async function saveHabitDef(def){
+  try {
+    await fetch(API_BASE + '/api/habitdefs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: CURRENT_USER, pin: CURRENT_PIN, habitId: def.habitId, title: def.title, category: def.category, weightScore: def.weightScore, timeSlot: def.timeSlot })
+    });
+  } catch(err) { console.error('Failed to save habit definition', err); }
+}
+
+async function deleteHabitDef(habitId){
+  try {
+    await fetch(API_BASE + '/api/habitdefs?user=' + encodeURIComponent(CURRENT_USER) + '&habitId=' + encodeURIComponent(habitId) + '&pin=' + encodeURIComponent(CURRENT_PIN), { method: 'DELETE' });
+  } catch(err) { console.error('Failed to delete habit definition', err); }
+}
+
 function setDay(hIdx, i, entry){
   habits[hIdx].days[i] = entry;
   saveHabits();
   render();
-  saveToCloud(habits[hIdx].def.title, i, entry);
+  saveToCloud(habits[hIdx].def.habitId, i, entry);
 }
 
 // ================= DAY STATE =================
@@ -374,7 +558,6 @@ function computeStatus(days){
 function computeDayScore(i){
   let earned = 0, possible = 0;
   habits.forEach(h => {
-    if(!isApplicable(h.def, i)) return;
     const s = dayState(h.days, i);
     if(s === 'buffer' || s === 'future') return;
     possible += h.def.weightScore;
@@ -383,23 +566,120 @@ function computeDayScore(i){
   const pct = possible ? Math.round(100 * earned / possible) : null;
   return { earned, possible, pct, isGreenDay: pct !== null && pct >= DAILY_TARGET };
 }
+function scoreColorClass(pct){
+  if(pct === null) return '';
+  if(pct < 50) return 'warn';
+  if(pct < DAILY_TARGET) return 'mid';
+  return 'good';
+}
 
 function computeReboundIndex(){
   let successes = 0, events = 0;
-  const finalizedEnd = todayIndex - GRACE_DAYS; // exclusive
+  const finalizedEnd = todayIndex - GRACE_DAYS;
   habits.forEach(h => {
     for(let i = 0; i < finalizedEnd; i++){
       const s = dayState(h.days, i);
       if(s !== 'missed') continue;
       const prevS = i > 0 ? dayState(h.days, i-1) : 'done';
-      if(prevS === 'missed') continue; // part of an ongoing streak, not a new event
+      if(prevS === 'missed') continue;
       const nextIdx = i + 1;
-      if(nextIdx >= finalizedEnd) continue; // next day not finalized yet
+      if(nextIdx >= finalizedEnd) continue;
       events++;
       if(dayState(h.days, nextIdx) === 'done') successes++;
     }
   });
   return events ? { successes, events, pct: Math.round(100*successes/events) } : { successes:0, events:0, pct:null };
+}
+
+// ================= CLIENT INSIGHTS ENGINE =================
+function generateBehavioralInsights(){
+  const insights = [];
+
+  // Inconsistency flags: any habit on a 2+ day miss streak
+  habits.forEach(h => {
+    const stat = computeStatus(h.days);
+    if(stat.trailingMiss >= 2){
+      insights.push({
+        id: 'warn-' + h.def.habitId,
+        type: 'WARNING',
+        habitId: h.def.habitId,
+        title: h.def.title + ' is sliding',
+        message: stat.trailingMiss + '-day miss streak.',
+        actionableStep: 'Check in today to break it before it compounds.'
+      });
+    }
+  });
+
+  // Recovery badges: completed today/yesterday right after a miss
+  habits.forEach(h => {
+    for(let i = Math.max(0, todayIndex - GRACE_DAYS); i <= todayIndex; i++){
+      const entry = h.days[i];
+      if(entry && entry.status === 'COMPLETED' && i > 0 && dayState(h.days, i-1) === 'missed'){
+        insights.push({
+          id: 'rebound-' + h.def.habitId + '-' + i,
+          type: 'SUCCESS',
+          habitId: h.def.habitId,
+          title: 'Rebound on ' + h.def.title,
+          message: 'Bounced back the day after a miss \u2014 exactly the resilience pattern that matters.'
+        });
+      }
+    }
+  });
+
+  // Pillar imbalance: category completion vs overall average, over elapsed days
+  if(todayIndex > 0){
+    const categories = ['Foundation','Deep Work','Recovery','Connection'];
+    const catStats = {}; categories.forEach(c => catStats[c] = { earned:0, possible:0 });
+    let overallEarned = 0, overallPossible = 0;
+    for(let i = 0; i < todayIndex; i++){
+      habits.forEach(h => {
+        const s = dayState(h.days, i);
+        if(s === 'buffer' || s === 'future') return;
+        catStats[h.def.category].possible += h.def.weightScore;
+        overallPossible += h.def.weightScore;
+        if(s === 'done'){ catStats[h.def.category].earned += h.def.weightScore; overallEarned += h.def.weightScore; }
+      });
+    }
+    if(overallPossible > 0){
+      const overallPct = 100 * overallEarned / overallPossible;
+      categories.forEach(c => {
+        const cs = catStats[c];
+        if(cs.possible === 0) return;
+        const pct = 100 * cs.earned / cs.possible;
+        if(overallPct - pct >= 20){
+          insights.push({
+            id: 'imbalance-' + c,
+            type: 'IMBALANCE',
+            title: c + ' pillar is lagging',
+            message: Math.round(pct) + '% vs ' + Math.round(overallPct) + '% overall.',
+            actionableStep: 'Prioritize your ' + c.toLowerCase() + ' habits this week.'
+          });
+        }
+      });
+    }
+  }
+
+  return insights;
+}
+
+function renderInsights(){
+  const insights = generateBehavioralInsights();
+  const badge = document.getElementById('insightsBadge');
+  badge.textContent = insights.length;
+  badge.className = 'insights-badge' + (insights.length === 0 ? ' zero' : '');
+
+  const drawer = document.getElementById('insightsDrawer');
+  if(insights.length === 0){
+    drawer.innerHTML = '<div class="insight-empty">No signals yet \u2014 keep logging and patterns will surface here.</div>';
+    return;
+  }
+  drawer.innerHTML = insights.map(ins => `
+    <div class="insight-card ${ins.type}">
+      <div class="insight-title">${ins.title}</div>
+      <div class="insight-msg">${ins.message}</div>
+      ${ins.actionableStep ? `<div class="insight-action">${ins.actionableStep}</div>` : ''}
+    </div>
+  `).join('');
 }
 
 // ================= REASON POPUP =================
@@ -445,10 +725,57 @@ function openReasonPopup(cellEl, hIdx, i){
 }
 
 // ================= RENDER =================
+function renderHabitRow(h, hIdx, historyEnd, nowSlot){
+  const stat = computeStatus(h.days);
+  const todayEntry = h.days[todayIndex];
+  const todayDone = todayEntry && todayEntry.status === 'COMPLETED';
+
+  const cellsHtml = Array.from({length: historyEnd}).map((_,i) => {
+    const s = dayState(h.days, i);
+    const entry = h.days[i];
+    const reasonMark = entry && entry.reason ? ' has-reason' : '';
+    if(s === 'done') return `<div class="cell done clickable" data-h="${hIdx}" data-i="${i}"></div>`;
+    const prevMissed = i>0 && dayState(h.days,i-1) === 'missed';
+    const title = entry && entry.reason ? (REASONS.find(r=>r.code===entry.reason)||{}).label || '' : '';
+    return `<div class="cell ${prevMissed ? 'miss2' : 'miss1'}${reasonMark} clickable" data-h="${hIdx}" data-i="${i}" title="${title}"></div>`;
+  }).join('');
+
+  let boxesHtml = '';
+  for(let i = Math.max(0, todayIndex - GRACE_DAYS); i <= todayIndex; i++){
+    const entry = h.days[i];
+    const checked = entry && entry.status === 'COMPLETED';
+    boxesHtml += `
+      <div class="today-box${checked?' checked':''}" data-h="${hIdx}" data-i="${i}" role="checkbox" aria-checked="${checked}" aria-label="Check in ${h.def.title}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0d1410" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg>
+      </div>`;
+  }
+
+  let statusLabel, statusClass;
+  if(stat.trackedCount === 0 && !todayDone){ statusLabel = 'no data'; statusClass='muted'; }
+  else if(stat.trailingMiss >= 2){ statusLabel = stat.trailingMiss + 'd miss'; statusClass='bad'; }
+  else if(stat.trailingMiss === 1){ statusLabel = '1 miss'; statusClass='warn'; }
+  else { statusLabel = 'on track'; statusClass='good'; }
+
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `
+    <div class="row-name-wrap">
+      <div class="row-name" title="${h.def.title}">
+        <span class="weight-dots">${[1,2,3].map(n=>`<span class="weight-dot${n<=h.def.weightScore?' on':''}"></span>`).join('')}</span>
+        ${h.def.title}
+      </div>
+      <div class="row-meta">${h.def.category}</div>
+    </div>
+    <div class="strip">${cellsHtml}</div>
+    <div class="today-col">${boxesHtml}</div>
+    <div class="row-status ${statusClass}">${statusLabel}</div>
+  `;
+  return { row, atRisk: stat.trailingMiss >= 1 };
+}
+
 function render(){
   document.getElementById('eyebrow').textContent =
     'Day ' + (todayIndex+1) + ' of 30 \u00b7 ' + fmtLong(todayIndex) + ', 2026';
-  document.getElementById('panelTitle').textContent = 'Habits \u2014 tap to check in (today or yesterday)';
   const editLabels = [];
   for(let i = Math.max(0, todayIndex - GRACE_DAYS); i <= todayIndex; i++){
     editLabels.push(i === todayIndex ? 'Today' : fmtShort(i)+' '+MONTHS[dateAt(i).getMonth()]);
@@ -460,75 +787,51 @@ function render(){
   dateStrip.innerHTML = Array.from({length: historyEnd}).map((_,i) => `<div class="date-cell">${fmtShort(i)}</div>`).join('');
 
   const nowSlot = currentTimeSlot();
-  const rowsEl = document.getElementById('rows');
-  rowsEl.innerHTML = '';
+  const sectionsEl = document.getElementById('sections');
+  sectionsEl.innerHTML = '';
   let atRisk = 0;
+  const criticalHabits = [];
 
-  habits.forEach((h, hIdx) => {
-    const stat = computeStatus(h.days);
-    if(stat.trailingMiss >= 1) atRisk++;
-    const todayEntry = h.days[todayIndex];
-    const todayDone = todayEntry && todayEntry.status === 'COMPLETED';
-
-    const cellsHtml = Array.from({length: historyEnd}).map((_,i) => {
-      const s = dayState(h.days, i);
-      const entry = h.days[i];
-      const reasonMark = entry && entry.reason ? ' has-reason' : '';
-      if(s === 'done') return `<div class="cell done clickable" data-h="${hIdx}" data-i="${i}"></div>`;
-      const prevMissed = i>0 && dayState(h.days,i-1) === 'missed';
-      const title = entry && entry.reason ? REASONS.find(r=>r.code===entry.reason)?.label || '' : '';
-      return `<div class="cell ${prevMissed ? 'miss2' : 'miss1'}${reasonMark} clickable" data-h="${hIdx}" data-i="${i}" title="${title}"></div>`;
-    }).join('');
-
-    let boxesHtml = '';
-    for(let i = Math.max(0, todayIndex - GRACE_DAYS); i <= todayIndex; i++){
-      const entry = h.days[i];
-      const checked = entry && entry.status === 'COMPLETED';
-      boxesHtml += `
-        <div class="today-box${checked?' checked':''}" data-h="${hIdx}" data-i="${i}" role="checkbox" aria-checked="${checked}" aria-label="Check in ${h.def.title}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#0d1410" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg>
-        </div>`;
+  if(habits.length === 0){
+    sectionsEl.innerHTML = '<div class="manage-empty" style="padding:24px 18px">Let\'s set up your first habit \u2014 use the form open below.</div>';
+    const panel = document.getElementById('managePanel');
+    if(panel.style.display !== 'flex'){
+      panel.style.display = 'flex';
+      document.getElementById('newHabitTitle').focus();
     }
+  }
 
-    let statusLabel, statusClass;
-    if(stat.trackedCount === 0 && !todayDone){ statusLabel = 'no data'; statusClass='muted'; }
-    else if(stat.trailingMiss >= 2){ statusLabel = stat.trailingMiss + 'd miss'; statusClass='bad'; }
-    else if(stat.trailingMiss === 1){ statusLabel = '1 miss'; statusClass='warn'; }
-    else { statusLabel = 'on track'; statusClass='good'; }
+  SECTIONS.forEach(sec => {
+    const groupHabits = habits.map((h,idx)=>({h,idx})).filter(x => x.h.def.timeSlot === sec.slot);
+    if(groupHabits.length === 0) return;
 
-    const inWindow = h.def.timeSlot === nowSlot;
-    const slotLabel = h.def.timeSlot === 'ANYTIME' ? 'ANY' : h.def.timeSlot.slice(0,3);
+    const isNow = sec.slot === nowSlot;
+    const head = document.createElement('div');
+    head.className = 'section-head' + (isNow ? ' now' : '');
+    head.innerHTML = `<span class="dot"></span><span class="section-name">${sec.name}</span>${sec.window ? `<span class="section-window">${sec.window}</span>` : ''}`;
+    sectionsEl.appendChild(head);
 
-    const row = document.createElement('div');
-    row.className = 'row' + (inWindow ? ' in-window' : '');
-    row.innerHTML = `
-      <div class="row-name-wrap">
-        <div class="row-name" title="${h.def.title}">
-          <span class="weight-dots">${[1,2,3].map(n=>`<span class="weight-dot${n<=h.def.weightScore?' on':''}"></span>`).join('')}</span>
-          ${h.def.title}
-        </div>
-        <div class="row-meta"><span class="slot-tag${inWindow?' now':''}">${slotLabel}</span><span>${h.def.category}</span></div>
-      </div>
-      <div class="strip">${cellsHtml}</div>
-      <div class="today-col">${boxesHtml}</div>
-      <div class="row-status ${statusClass}">${statusLabel}</div>
-    `;
-    rowsEl.appendChild(row);
-  });
-
-  rowsEl.querySelectorAll('.cell.clickable').forEach(cell => {
-    cell.addEventListener('click', (ev) => {
-      const hIdx = +cell.dataset.h, i = +cell.dataset.i;
-      const s = dayState(habits[hIdx].days, i);
-      if(s === 'done'){
-        setDay(hIdx, i, null); // undo directly, no popup needed
-      } else {
-        openReasonPopup(cell, hIdx, i); // missed: offer "mark done" or tag a reason
-      }
+    groupHabits.forEach(({h, idx}) => {
+      const { row, atRisk: isAtRisk } = renderHabitRow(h, idx, historyEnd, nowSlot);
+      if(isAtRisk) atRisk++;
+      const stat = computeStatus(h.days);
+      if(stat.trailingMiss >= 2) criticalHabits.push(h.def.title);
+      sectionsEl.appendChild(row);
     });
   });
 
-  rowsEl.querySelectorAll('.today-box').forEach(box => {
+  sectionsEl.querySelectorAll('.cell.clickable').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const hIdx = +cell.dataset.h, i = +cell.dataset.i;
+      const s = dayState(habits[hIdx].days, i);
+      if(s === 'done'){
+        setDay(hIdx, i, null);
+      } else {
+        openReasonPopup(cell, hIdx, i);
+      }
+    });
+  });
+  sectionsEl.querySelectorAll('.today-box').forEach(box => {
     box.addEventListener('click', () => {
       const hIdx = +box.dataset.h, i = +box.dataset.i;
       const entry = habits[hIdx].days[i];
@@ -539,7 +842,9 @@ function render(){
 
   // ---- Scoring KPIs ----
   const todayScore = computeDayScore(todayIndex);
-  document.getElementById('kpi-score').textContent = todayScore.pct === null ? '—%' : todayScore.pct + '%';
+  const scoreEl = document.getElementById('kpi-score');
+  scoreEl.textContent = todayScore.pct === null ? '—%' : todayScore.pct + '%';
+  scoreEl.className = 'kpi-value ' + scoreColorClass(todayScore.pct);
   document.getElementById('greenPill').style.display = todayScore.isGreenDay ? 'block' : 'none';
 
   let greenDays = 0;
@@ -553,24 +858,27 @@ function render(){
 
   document.getElementById('kpi-risk').textContent = atRisk;
 
-  // ---- Banner ----
+  // ---- Banner: critical (2+ streak) beats everything else ----
   const banner = document.getElementById('banner');
   const anyData = habits.some(h => h.days.some(d => d));
-  if(!anyData){
+  if(criticalHabits.length > 0){
+    banner.className = 'banner critical';
+    banner.textContent = '\u26A0 STOP THE SLIDE \u2014 ' + criticalHabits.join(', ') + (criticalHabits.length===1 ? ' is' : ' are') + ' on a 2+ day miss streak. Check in now.';
+  } else if(!anyData){
     banner.className = 'banner start';
     banner.textContent = 'Nothing logged yet. Check in today\u2019s box for each habit to start day 1.';
   } else if(atRisk > 0){
     banner.className = 'banner risk';
-    banner.textContent = atRisk + (atRisk===1 ? ' habit needs' : ' habits need') + ' a check-in today to stop the slide.';
+    banner.textContent = atRisk + (atRisk===1 ? ' habit needs' : ' habits need') + ' a check-in today to prevent a slide.';
   } else if(todayScore.isGreenDay){
     banner.className = 'banner clear';
     banner.textContent = 'Green Day \u2014 ' + todayScore.pct + '% weighted execution. Keep it up.';
   } else {
     banner.className = 'banner clear';
-    banner.textContent = 'Every habit on track. Push for a Green Day (85%+) today.';
+    banner.textContent = 'Every habit on track. Push for a Green Day (' + DAILY_TARGET + '%+) today.';
   }
 
-  // ---- Weekly chart (weighted score, not raw ratio) ----
+  // ---- Weekly chart (weighted score) ----
   const weekBars = document.getElementById('weekBars');
   weekBars.innerHTML = '';
   for(let w=0; w<5; w++){
@@ -587,24 +895,185 @@ function render(){
     weekBars.appendChild(col);
   }
 
-  // ---- Today donut (weighted score) ----
+  // ---- Today donut ----
   const pctFrac = todayScore.pct === null ? 0 : todayScore.pct/100;
   const r = 36, c = 2*Math.PI*r;
   const svg = document.getElementById('donutSvg');
+  const ringColor = todayScore.pct === null ? '#565F70' : (todayScore.pct < 50 ? '#E2564E' : todayScore.pct < DAILY_TARGET ? '#E3A73B' : '#3FBE8E');
   svg.innerHTML = `
     <circle cx="45" cy="45" r="${r}" fill="none" stroke="#252A33" stroke-width="9"/>
-    <circle cx="45" cy="45" r="${r}" fill="none" stroke="${todayScore.isGreenDay?'#3FBE8E':'#E3A73B'}" stroke-width="9"
+    <circle cx="45" cy="45" r="${r}" fill="none" stroke="${ringColor}" stroke-width="9"
       stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pctFrac)}"
       stroke-linecap="round" transform="rotate(-90 45 45)"/>
   `;
   document.getElementById('donutNum').textContent = todayScore.pct === null ? '—' : todayScore.pct + '%';
+
+  renderInsights();
+  renderManagePanel();
+}
+
+function renderManagePanel(){
+  const list = document.getElementById('manageList');
+  if(habits.length === 0){
+    list.innerHTML = '<div class="manage-empty">No habits yet \u2014 add your first one below.</div>';
+    return;
+  }
+  list.innerHTML = habits.map((h,idx) => `
+    <div class="manage-row">
+      <input type="text" class="manage-title" value="${h.def.title.replace(/"/g,'&quot;')}" data-idx="${idx}">
+      <select class="manage-category" data-idx="${idx}">
+        ${['Foundation','Deep Work','Recovery','Connection'].map(c=>`<option value="${c}" ${h.def.category===c?'selected':''}>${c}</option>`).join('')}
+      </select>
+      <select class="manage-weight" data-idx="${idx}">
+        <option value="1" ${h.def.weightScore===1?'selected':''}>Tier 3 (1pt)</option>
+        <option value="2" ${h.def.weightScore===2?'selected':''}>Tier 2 (2pt)</option>
+        <option value="3" ${h.def.weightScore===3?'selected':''}>Tier 1 (3pt)</option>
+      </select>
+      <select class="manage-slot" data-idx="${idx}">
+        <option value="MORNING" ${h.def.timeSlot==='MORNING'?'selected':''}>Morning</option>
+        <option value="MIDDAY" ${h.def.timeSlot==='MIDDAY'?'selected':''}>Midday</option>
+        <option value="EVENING" ${h.def.timeSlot==='EVENING'?'selected':''}>Evening</option>
+      </select>
+      <button class="del-btn" data-idx="${idx}">Delete</button>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.manage-title').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const idx = +inp.dataset.idx;
+      habits[idx].def.title = inp.value.trim() || habits[idx].def.title;
+      saveHabits(); saveHabitDef(habits[idx].def); render();
+    });
+  });
+  list.querySelectorAll('.manage-category').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const idx = +sel.dataset.idx;
+      habits[idx].def.category = sel.value;
+      saveHabits(); saveHabitDef(habits[idx].def); render();
+    });
+  });
+  list.querySelectorAll('.manage-weight').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const idx = +sel.dataset.idx;
+      habits[idx].def.weightScore = +sel.value;
+      saveHabits(); saveHabitDef(habits[idx].def); render();
+    });
+  });
+  list.querySelectorAll('.manage-slot').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const idx = +sel.dataset.idx;
+      habits[idx].def.timeSlot = sel.value;
+      saveHabits(); saveHabitDef(habits[idx].def); render();
+    });
+  });
+  list.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = +btn.dataset.idx;
+      const def = habits[idx].def;
+      if(!confirm('Delete "' + def.title + '"? History stays in the database, but it disappears from your list.')) return;
+      deleteHabitDef(def.habitId);
+      habits.splice(idx, 1);
+      saveHabits();
+      render();
+    });
+  });
 }
 
 async function init(){
-  await loadFromCloud();
+  await loadDefsAndHabits();
   render();
 }
-init();
+
+let CURRENT_PIN = localStorage.getItem('habitctl_pin_' + CURRENT_USER) || null;
+
+function showError(elId, msg){
+  const el = document.getElementById(elId);
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function tryStoredPin(){
+  const res = await fetch(API_BASE + '/api/verifypin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: CURRENT_USER, pin: CURRENT_PIN })
+  });
+  const data = await res.json().catch(() => ({ ok: false }));
+  return data.ok === true;
+}
+
+async function startAccessFlow(){
+  if(!CURRENT_USER){
+    document.body.innerHTML = '<div style="padding:40px;text-align:center;font-family:IBM Plex Mono,monospace;color:#8A93A3">This link is missing <code>?user=</code>. Use the specific link you were given.</div>';
+    return;
+  }
+  applyDisplayName();
+
+  if(CURRENT_PIN){
+    const ok = await tryStoredPin();
+    if(ok){ init(); return; }
+    try { localStorage.removeItem('habitctl_pin_' + CURRENT_USER); } catch(e) {}
+    CURRENT_PIN = null;
+  }
+
+  const hasPinRes = await fetch(API_BASE + '/api/haspin?user=' + encodeURIComponent(CURRENT_USER));
+  const hasPinData = await hasPinRes.json().catch(() => ({ hasPin:false }));
+
+  if(hasPinData.hasPin){
+    document.getElementById('pinGateEnter').style.display = 'flex';
+    document.getElementById('pinEnterInput').focus();
+  } else {
+    document.getElementById('pinGateCreate').style.display = 'flex';
+    document.getElementById('pinCreateInput').focus();
+  }
+}
+
+document.getElementById('pinCreateBtn').addEventListener('click', async () => {
+  const p1 = document.getElementById('pinCreateInput').value.trim();
+  const p2 = document.getElementById('pinConfirmInput').value.trim();
+  if(p1.length < 4){ showError('pinCreateError', 'PIN must be at least 4 digits.'); return; }
+  if(p1 !== p2){ showError('pinCreateError', 'PINs don\u2019t match.'); return; }
+  const res = await fetch(API_BASE + '/api/setpin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: CURRENT_USER, newPin: p1 })
+  });
+  if(!res.ok){ showError('pinCreateError', 'Something went wrong. Try again.'); return; }
+  CURRENT_PIN = p1;
+  try { localStorage.setItem('habitctl_pin_' + CURRENT_USER, CURRENT_PIN); } catch(e) {}
+  document.getElementById('pinGateCreate').style.display = 'none';
+  init();
+});
+
+document.getElementById('pinEnterBtn').addEventListener('click', async () => {
+  const p = document.getElementById('pinEnterInput').value.trim();
+  if(!p){ return; }
+  const res = await fetch(API_BASE + '/api/verifypin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: CURRENT_USER, pin: p })
+  });
+  const data = await res.json().catch(() => ({ ok:false }));
+  if(!data.ok){ showError('pinEnterError', 'Incorrect PIN. Try again.'); return; }
+  CURRENT_PIN = p;
+  try { localStorage.setItem('habitctl_pin_' + CURRENT_USER, CURRENT_PIN); } catch(e) {}
+  document.getElementById('pinGateEnter').style.display = 'none';
+  init();
+});
+
+document.getElementById('userTag').addEventListener('click', () => {
+  if(!confirm('Forget this device\u2019s remembered PIN? You\u2019ll need to enter it again.')) return;
+  try { localStorage.removeItem('habitctl_pin_' + CURRENT_USER); } catch(e) {}
+  location.reload();
+});
+document.getElementById('pinConfirmInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') document.getElementById('pinCreateBtn').click();
+});
+document.getElementById('pinEnterInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') document.getElementById('pinEnterBtn').click();
+});
+
+startAccessFlow();
 </script>
 </body>
 </html>
