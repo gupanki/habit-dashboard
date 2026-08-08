@@ -1009,6 +1009,20 @@ async function startAccessFlow(){
   }
   applyDisplayName();
 
+  // Always check the server first: does a real PIN actually exist for this account?
+  // A locally cached PIN is only meaningful if the server agrees one exists \u2014
+  // otherwise (e.g. right after a reset) a stale local value must never grant entry.
+  const hasPinRes = await fetch(API_BASE + '/api/haspin?user=' + encodeURIComponent(CURRENT_USER));
+  const hasPinData = await hasPinRes.json().catch(() => ({ hasPin:false }));
+
+  if(!hasPinData.hasPin){
+    try { localStorage.removeItem('habitctl_pin_' + CURRENT_USER); } catch(e) {}
+    CURRENT_PIN = null;
+    document.getElementById('pinGateCreate').style.display = 'flex';
+    document.getElementById('pinCreateInput').focus();
+    return;
+  }
+
   if(CURRENT_PIN){
     const ok = await tryStoredPin();
     if(ok){ init(); return; }
@@ -1016,16 +1030,8 @@ async function startAccessFlow(){
     CURRENT_PIN = null;
   }
 
-  const hasPinRes = await fetch(API_BASE + '/api/haspin?user=' + encodeURIComponent(CURRENT_USER));
-  const hasPinData = await hasPinRes.json().catch(() => ({ hasPin:false }));
-
-  if(hasPinData.hasPin){
-    document.getElementById('pinGateEnter').style.display = 'flex';
-    document.getElementById('pinEnterInput').focus();
-  } else {
-    document.getElementById('pinGateCreate').style.display = 'flex';
-    document.getElementById('pinCreateInput').focus();
-  }
+  document.getElementById('pinGateEnter').style.display = 'flex';
+  document.getElementById('pinEnterInput').focus();
 }
 
 document.getElementById('pinCreateBtn').addEventListener('click', async () => {
