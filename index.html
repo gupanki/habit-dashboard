@@ -44,6 +44,20 @@
   .insight-action{font-size:11px;color:var(--text-faint);margin-top:3px;font-style:italic;}
   .insight-empty{font-size:12.5px;color:var(--text-faint);text-align:center;padding:8px;}
 
+  .analytics-page{display:none;flex-direction:column;gap:14px;margin-bottom:16px;}
+  .analytics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media (max-width:720px){.analytics-grid{grid-template-columns:1fr;}}
+  .analytics-item{border-left:3px solid var(--border);background:var(--panel-2);border-radius:0 8px 8px 0;padding:9px 12px;font-size:12.5px;color:var(--text-dim);margin-bottom:8px;}
+  .analytics-item:last-child{margin-bottom:0;}
+  .mom-row{display:flex;align-items:center;justify-content:center;gap:22px;padding:14px 0 6px;}
+  .mom-col{text-align:center;}
+  .mom-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+  .mom-value{font-size:28px;font-weight:700;}
+  .mom-arrow{font-size:20px;color:var(--text-faint);}
+  .mom-delta{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;margin-top:4px;}
+  .mom-delta.up{color:var(--green);}
+  .mom-delta.down{color:var(--red);}
+
   .manage-toggle{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 10px;border-radius:20px;cursor:pointer;}
   .manage-toggle:hover{border-color:var(--text-dim);}
   .manage-panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:none;flex-direction:column;gap:10px;}
@@ -215,6 +229,7 @@
         <span>Insights</span>
         <span class="insights-badge zero" id="insightsBadge">0</span>
       </div>
+      <div class="insights-toggle" id="analyticsToggle"><span>Analytics</span></div>
       <div class="live-badge"><span class="live-dot"></span>LIVE</div>
     </div>
   </header>
@@ -244,6 +259,22 @@
   </div>
 
   <div class="insights-drawer" id="insightsDrawer"></div>
+
+  <div class="analytics-page" id="analyticsPage">
+    <div class="panel">
+      <div class="panel-title">Month over month</div>
+      <div class="mom-row" id="momPanel"></div>
+    </div>
+    <div class="analytics-grid">
+      <div class="panel"><div class="panel-title">Wins</div><div id="winsList"></div></div>
+      <div class="panel"><div class="panel-title">Improvements</div><div id="improvementsList"></div></div>
+      <div class="panel"><div class="panel-title">Patterns</div><div id="patternsList"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Linked habits</div>
+      <div id="linkedList"></div>
+    </div>
+  </div>
 
   <div class="why-panel">
     <div class="why-label">Why</div>
@@ -309,6 +340,12 @@ insightsToggle.addEventListener('click', () => {
   insightsDrawer.style.display = insightsDrawer.style.display === 'flex' ? 'none' : 'flex';
 });
 
+// ================= ANALYTICS PAGE TOGGLE =================
+document.getElementById('analyticsToggle').addEventListener('click', () => {
+  const page = document.getElementById('analyticsPage');
+  page.style.display = page.style.display === 'block' ? 'none' : 'block';
+});
+
 // ================= MANAGE HABITS TOGGLE =================
 document.getElementById('manageToggle').addEventListener('click', () => {
   const panel = document.getElementById('managePanel');
@@ -323,7 +360,7 @@ document.getElementById('addHabitBtn').addEventListener('click', () => {
   const timeSlot = document.getElementById('newHabitSlot').value;
   const habitId = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') + '-' + Math.random().toString(36).slice(2,7);
   const def = { habitId, title, category, weightScore, timeSlot, isArchived:false };
-  habits.push({ def, days: Array(30).fill(null) });
+  habits.push({ def, days: [] });
   saveHabits();
   saveHabitDef(def);
   titleInp.value = '';
@@ -356,7 +393,7 @@ const START_DATE = new Date('2026-08-01T00:00:00');
 const today = new Date();
 today.setHours(0,0,0,0);
 let todayIndex = Math.floor((today - START_DATE) / 86400000);
-todayIndex = Math.max(0, Math.min(29, todayIndex));
+todayIndex = Math.max(0, todayIndex);
 const GRACE_DAYS = 1;
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -371,7 +408,7 @@ function dateStringToIndex(dateStr){
   const [y,m,d] = dateStr.split('-').map(Number);
   const dt = new Date(y, m-1, d); dt.setHours(0,0,0,0);
   const diff = Math.round((dt - START_DATE) / 86400000);
-  return (diff < 0 || diff > 29) ? null : diff;
+  return diff < 0 ? null : diff;
 }
 // Morning Anchor 04:30-07:30, Midday 07:30-17:00, Evening 17:00-04:30 (wraps midnight)
 function currentTimeSlot(){
@@ -455,7 +492,7 @@ async function loadDefsAndHabits(){
       defs = DEFAULT_SEED_DEFS.map(d => ({ ...d }));
     }
 
-    habits = defs.map(def => ({ def, days: Array(30).fill(null) }));
+    habits = defs.map(def => ({ def, days: [] }));
 
     const entriesRes = await fetch(API_BASE + '/api/habits?user=' + encodeURIComponent(CURRENT_USER) + '&pin=' + encodeURIComponent(CURRENT_PIN));
     if(entriesRes.ok){
@@ -589,6 +626,185 @@ function computeReboundIndex(){
     }
   });
   return events ? { successes, events, pct: Math.round(100*successes/events) } : { successes:0, events:0, pct:null };
+}
+
+// ================= MONTH-OVER-MONTH =================
+function monthKey(i){ const d = dateAt(i); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+function monthLabel(key){ const [y,m] = key.split('-').map(Number); return MONTHS[m-1] + ' ' + y; }
+
+function allMonthKeysToDate(){
+  const keys = [];
+  for(let i=0;i<=todayIndex;i++){ const k = monthKey(i); if(keys[keys.length-1] !== k) keys.push(k); }
+  return keys;
+}
+
+function computeMonthStats(key){
+  let earned=0, possible=0, greenDays=0, trackedDays=0, successes=0, events=0;
+  const finalizedEnd = todayIndex - GRACE_DAYS;
+  for(let i=0;i<=todayIndex;i++){
+    if(monthKey(i) !== key) continue;
+    const s = computeDayScore(i);
+    if(s.pct !== null){
+      trackedDays++; earned += s.earned; possible += s.possible;
+      if(s.isGreenDay) greenDays++;
+    }
+    if(i < finalizedEnd){
+      habits.forEach(h => {
+        const st = dayState(h.days, i);
+        if(st !== 'missed') return;
+        const prevS = i > 0 ? dayState(h.days, i-1) : 'done';
+        if(prevS === 'missed') return;
+        if(i+1 >= finalizedEnd) return;
+        events++;
+        if(dayState(h.days, i+1) === 'done') successes++;
+      });
+    }
+  }
+  const pct = possible ? Math.round(100*earned/possible) : null;
+  return { key, label: monthLabel(key), pct, greenDays, trackedDays, reboundPct: events ? Math.round(100*successes/events) : null };
+}
+
+// ================= PATTERNS =================
+function computeDayOfWeekStats(){
+  const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const stats = DOW.map(()=>({earned:0,possible:0}));
+  for(let i=0;i<todayIndex;i++){
+    const s = computeDayScore(i);
+    if(s.pct===null) continue;
+    const dow = dateAt(i).getDay();
+    stats[dow].earned += s.earned; stats[dow].possible += s.possible;
+  }
+  return DOW.map((name,idx)=>({ name, pct: stats[idx].possible ? Math.round(100*stats[idx].earned/stats[idx].possible) : null }));
+}
+
+function computeSlotStats(){
+  const slots = { MORNING:{earned:0,possible:0}, MIDDAY:{earned:0,possible:0}, EVENING:{earned:0,possible:0} };
+  for(let i=0;i<todayIndex;i++){
+    habits.forEach(h => {
+      const s = dayState(h.days, i);
+      if(s === 'buffer' || s === 'future') return;
+      slots[h.def.timeSlot].possible += h.def.weightScore;
+      if(s === 'done') slots[h.def.timeSlot].earned += h.def.weightScore;
+    });
+  }
+  return Object.entries(slots).map(([slot,v]) => ({ slot, pct: v.possible ? Math.round(100*v.earned/v.possible) : null }));
+}
+
+function titleCase(s){ return s.charAt(0) + s.slice(1).toLowerCase(); }
+
+// ================= HABIT CORRELATIONS =================
+// Which habits tend to slip on the same day (co-miss), and which
+// reinforce each other (co-done), using only finalized (non-grace) days.
+function computeHabitCorrelations(){
+  const finalizedEnd = todayIndex - GRACE_DAYS;
+  const pairs = [];
+  for(let a=0; a<habits.length; a++){
+    for(let b=a+1; b<habits.length; b++){
+      let bothMiss=0, bothDone=0, jointTracked=0;
+      for(let i=0;i<finalizedEnd;i++){
+        const sa = dayState(habits[a].days, i);
+        const sb = dayState(habits[b].days, i);
+        if(sa==='buffer'||sa==='future'||sb==='buffer'||sb==='future') continue;
+        jointTracked++;
+        if(sa==='missed' && sb==='missed') bothMiss++;
+        if(sa==='done' && sb==='done') bothDone++;
+      }
+      if(jointTracked < 5) continue;
+      pairs.push({
+        a: habits[a].def.title, b: habits[b].def.title,
+        jointTracked, bothMiss, bothDone,
+        missRate: Math.round(100*bothMiss/jointTracked),
+        doneRate: Math.round(100*bothDone/jointTracked)
+      });
+    }
+  }
+  return pairs;
+}
+
+function computeAnalytics(){
+  const months = allMonthKeysToDate().map(computeMonthStats);
+  const current = months.length ? months[months.length-1] : null;
+  const previous = months.length > 1 ? months[months.length-2] : null;
+
+  const wins = [], improvements = [], patterns = [];
+
+  if(current && previous && current.pct!==null && previous.pct!==null){
+    const delta = current.pct - previous.pct;
+    if(delta > 0) wins.push(current.label + ' execution is up ' + delta + ' pts vs ' + previous.label + ' (' + previous.pct + '% \u2192 ' + current.pct + '%).');
+    else if(delta < 0) improvements.push(current.label + ' execution is down ' + Math.abs(delta) + ' pts vs ' + previous.label + ' (' + previous.pct + '% \u2192 ' + current.pct + '%).');
+  }
+
+  let bestStreakHabit=null, bestStreak=0;
+  habits.forEach(h => { const st = computeStatus(h.days); if(st.bestStreak > bestStreak){ bestStreak = st.bestStreak; bestStreakHabit = h.def.title; } });
+  if(bestStreakHabit) wins.push('Longest streak: ' + bestStreakHabit + ' at ' + bestStreak + ' days.');
+
+  const totalGreenDays = months.reduce((a,m)=>a+m.greenDays,0);
+  if(totalGreenDays > 0) wins.push(totalGreenDays + ' green day' + (totalGreenDays===1?'':'s') + ' logged since you started.');
+
+  habits.forEach(h => { const st = computeStatus(h.days); if(st.trailingMiss >= 2) improvements.push(h.def.title + ' is on a ' + st.trailingMiss + '-day miss streak.'); });
+
+  const dow = computeDayOfWeekStats().filter(d => d.pct !== null);
+  if(dow.length >= 3){
+    const worst = dow.reduce((a,b)=> b.pct < a.pct ? b : a);
+    const best = dow.reduce((a,b)=> b.pct > a.pct ? b : a);
+    improvements.push(worst.name + 's are your weakest day at ' + worst.pct + '% average execution.');
+    patterns.push('Best day: ' + best.name + ' (' + best.pct + '% avg) \u00b7 weakest: ' + worst.name + ' (' + worst.pct + '% avg).');
+  }
+
+  const slots = computeSlotStats().filter(s => s.pct !== null);
+  if(slots.length >= 2){
+    const sorted = [...slots].sort((a,b)=>b.pct-a.pct);
+    patterns.push(titleCase(sorted[0].slot) + ' habits are strongest (' + sorted[0].pct + '%); ' + titleCase(sorted[sorted.length-1].slot) + ' habits lag (' + sorted[sorted.length-1].pct + '%).');
+  }
+
+  const rebound = computeReboundIndex();
+  if(rebound.pct !== null) patterns.push('You recover from a miss ' + rebound.pct + '% of the time (' + rebound.successes + '/' + rebound.events + ').');
+
+  const correlations = computeHabitCorrelations();
+  const topMiss = [...correlations].filter(p=>p.bothMiss>=3).sort((x,y)=>y.missRate-x.missRate)[0];
+  if(topMiss && topMiss.missRate>=40){
+    improvements.push(topMiss.a + ' and ' + topMiss.b + ' slip together \u2014 both missed on ' + topMiss.missRate + '% of shared days (' + topMiss.bothMiss + '\u00d7). Fix the one that\u2019s easier and the other may follow.');
+  }
+  const topDone = [...correlations].filter(p=>p.bothDone>=3).sort((x,y)=>y.doneRate-x.doneRate)[0];
+  if(topDone && topDone.doneRate>=60){
+    patterns.push(topDone.a + ' and ' + topDone.b + ' reinforce each other \u2014 done together on ' + topDone.doneRate + '% of shared days. Anchor them back-to-back.');
+  }
+
+  return { months, current, previous, wins, improvements, patterns, correlations };
+}
+
+function renderAnalytics(){
+  const a = computeAnalytics();
+  const mom = document.getElementById('momPanel');
+  if(a.current){
+    const prevPct = a.previous && a.previous.pct!==null ? a.previous.pct+'%' : '\u2014';
+    const curPct = a.current.pct!==null ? a.current.pct+'%' : '\u2014';
+    let deltaHtml = '';
+    if(a.previous && a.current.pct!==null && a.previous.pct!==null){
+      const d = a.current.pct - a.previous.pct;
+      deltaHtml = '<span class="mom-delta ' + (d>=0?'up':'down') + '">' + (d>=0?'\u25B2':'\u25BC') + ' ' + Math.abs(d) + ' pts</span>';
+    }
+    mom.innerHTML =
+      '<div class="mom-col"><div class="mom-label">' + (a.previous ? a.previous.label : '\u2014') + '</div><div class="mom-value">' + prevPct + '</div></div>' +
+      '<div class="mom-arrow">\u2192</div>' +
+      '<div class="mom-col"><div class="mom-label">' + a.current.label + '</div><div class="mom-value">' + curPct + '</div>' + deltaHtml + '</div>';
+  } else {
+    mom.innerHTML = '<div class="insight-empty">Not enough data yet.</div>';
+  }
+
+  const fillList = (id, items, empty) => {
+    const el = document.getElementById(id);
+    el.innerHTML = items.length ? items.map(t => '<div class="analytics-item">' + t + '</div>').join('') : '<div class="insight-empty">' + empty + '</div>';
+  };
+  fillList('winsList', a.wins, 'Keep logging \u2014 wins will surface here.');
+  fillList('improvementsList', a.improvements, 'Nothing flagged \u2014 nice work.');
+  fillList('patternsList', a.patterns, 'Not enough data yet.');
+
+  const missPairs = [...a.correlations].filter(p=>p.bothMiss>=3).sort((x,y)=>y.missRate-x.missRate).slice(0,3)
+    .map(p => '\u26A0\uFE0F <b>' + p.a + '</b> + <b>' + p.b + '</b> \u2014 miss together ' + p.missRate + '% of shared days (' + p.bothMiss + '\u00d7 of ' + p.jointTracked + ').');
+  const donePairs = [...a.correlations].filter(p=>p.bothDone>=3).sort((x,y)=>y.doneRate-x.doneRate).slice(0,3)
+    .map(p => '\u2705 <b>' + p.a + '</b> + <b>' + p.b + '</b> \u2014 done together ' + p.doneRate + '% of shared days (' + p.bothDone + '\u00d7 of ' + p.jointTracked + ').');
+  fillList('linkedList', [...missPairs, ...donePairs], 'Need more overlapping history across habits before patterns show up here.');
 }
 
 // ================= CLIENT INSIGHTS ENGINE =================
@@ -775,7 +991,7 @@ function renderHabitRow(h, hIdx, historyEnd, nowSlot){
 
 function render(){
   document.getElementById('eyebrow').textContent =
-    'Day ' + (todayIndex+1) + ' of 30 \u00b7 ' + fmtLong(todayIndex) + ', 2026';
+    'Day ' + (todayIndex+1) + ' \u00b7 ' + fmtLong(todayIndex) + ', ' + dateAt(todayIndex).getFullYear();
   const editLabels = [];
   for(let i = Math.max(0, todayIndex - GRACE_DAYS); i <= todayIndex; i++){
     editLabels.push(i === todayIndex ? 'Today' : fmtShort(i)+' '+MONTHS[dateAt(i).getMonth()]);
@@ -881,10 +1097,13 @@ function render(){
   // ---- Weekly chart (weighted score) ----
   const weekBars = document.getElementById('weekBars');
   weekBars.innerHTML = '';
-  for(let w=0; w<5; w++){
-    const start = w*7, end = Math.min(start+7, 30);
+  const totalWeeks = Math.floor(todayIndex/7) + 1;
+  const WEEKS_TO_SHOW = 8;
+  const startWeek = Math.max(0, totalWeeks - WEEKS_TO_SHOW);
+  for(let w=startWeek; w<totalWeeks; w++){
+    const start = w*7, end = Math.min(start+7, todayIndex+1);
     let earned=0, possible=0, any=false;
-    for(let i=start;i<end && i<=todayIndex;i++){
+    for(let i=start;i<end;i++){
       const s = computeDayScore(i);
       if(s.pct !== null){ any = true; earned += s.earned; possible += s.possible; }
     }
@@ -894,6 +1113,8 @@ function render(){
     col.innerHTML = `<div class="bar-pct">${pct===null?'\u2013':pct+'%'}</div><div class="bar${pct===null?' empty':''}" style="height:${pct===null?2:Math.max(pct,3)}%"></div><div class="bar-wk">W${w+1}</div>`;
     weekBars.appendChild(col);
   }
+
+  renderAnalytics();
 
   // ---- Today donut ----
   const pctFrac = todayScore.pct === null ? 0 : todayScore.pct/100;
