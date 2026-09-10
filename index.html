@@ -270,6 +270,10 @@
       <div class="panel"><div class="panel-title">Improvements</div><div id="improvementsList"></div></div>
       <div class="panel"><div class="panel-title">Patterns</div><div id="patternsList"></div></div>
     </div>
+    <div class="panel">
+      <div class="panel-title">Linked habits</div>
+      <div id="linkedList"></div>
+    </div>
   </div>
 
   <div class="why-panel">
@@ -688,6 +692,35 @@ function computeSlotStats(){
 
 function titleCase(s){ return s.charAt(0) + s.slice(1).toLowerCase(); }
 
+// ================= HABIT CORRELATIONS =================
+// Which habits tend to slip on the same day (co-miss), and which
+// reinforce each other (co-done), using only finalized (non-grace) days.
+function computeHabitCorrelations(){
+  const finalizedEnd = todayIndex - GRACE_DAYS;
+  const pairs = [];
+  for(let a=0; a<habits.length; a++){
+    for(let b=a+1; b<habits.length; b++){
+      let bothMiss=0, bothDone=0, jointTracked=0;
+      for(let i=0;i<finalizedEnd;i++){
+        const sa = dayState(habits[a].days, i);
+        const sb = dayState(habits[b].days, i);
+        if(sa==='buffer'||sa==='future'||sb==='buffer'||sb==='future') continue;
+        jointTracked++;
+        if(sa==='missed' && sb==='missed') bothMiss++;
+        if(sa==='done' && sb==='done') bothDone++;
+      }
+      if(jointTracked < 5) continue;
+      pairs.push({
+        a: habits[a].def.title, b: habits[b].def.title,
+        jointTracked, bothMiss, bothDone,
+        missRate: Math.round(100*bothMiss/jointTracked),
+        doneRate: Math.round(100*bothDone/jointTracked)
+      });
+    }
+  }
+  return pairs;
+}
+
 function computeAnalytics(){
   const months = allMonthKeysToDate().map(computeMonthStats);
   const current = months.length ? months[months.length-1] : null;
@@ -727,7 +760,17 @@ function computeAnalytics(){
   const rebound = computeReboundIndex();
   if(rebound.pct !== null) patterns.push('You recover from a miss ' + rebound.pct + '% of the time (' + rebound.successes + '/' + rebound.events + ').');
 
-  return { months, current, previous, wins, improvements, patterns };
+  const correlations = computeHabitCorrelations();
+  const topMiss = [...correlations].filter(p=>p.bothMiss>=3).sort((x,y)=>y.missRate-x.missRate)[0];
+  if(topMiss && topMiss.missRate>=40){
+    improvements.push(topMiss.a + ' and ' + topMiss.b + ' slip together \u2014 both missed on ' + topMiss.missRate + '% of shared days (' + topMiss.bothMiss + '\u00d7). Fix the one that\u2019s easier and the other may follow.');
+  }
+  const topDone = [...correlations].filter(p=>p.bothDone>=3).sort((x,y)=>y.doneRate-x.doneRate)[0];
+  if(topDone && topDone.doneRate>=60){
+    patterns.push(topDone.a + ' and ' + topDone.b + ' reinforce each other \u2014 done together on ' + topDone.doneRate + '% of shared days. Anchor them back-to-back.');
+  }
+
+  return { months, current, previous, wins, improvements, patterns, correlations };
 }
 
 function renderAnalytics(){
@@ -756,6 +799,12 @@ function renderAnalytics(){
   fillList('winsList', a.wins, 'Keep logging \u2014 wins will surface here.');
   fillList('improvementsList', a.improvements, 'Nothing flagged \u2014 nice work.');
   fillList('patternsList', a.patterns, 'Not enough data yet.');
+
+  const missPairs = [...a.correlations].filter(p=>p.bothMiss>=3).sort((x,y)=>y.missRate-x.missRate).slice(0,3)
+    .map(p => '\u26A0\uFE0F <b>' + p.a + '</b> + <b>' + p.b + '</b> \u2014 miss together ' + p.missRate + '% of shared days (' + p.bothMiss + '\u00d7 of ' + p.jointTracked + ').');
+  const donePairs = [...a.correlations].filter(p=>p.bothDone>=3).sort((x,y)=>y.doneRate-x.doneRate).slice(0,3)
+    .map(p => '\u2705 <b>' + p.a + '</b> + <b>' + p.b + '</b> \u2014 done together ' + p.doneRate + '% of shared days (' + p.bothDone + '\u00d7 of ' + p.jointTracked + ').');
+  fillList('linkedList', [...missPairs, ...donePairs], 'Need more overlapping history across habits before patterns show up here.');
 }
 
 // ================= CLIENT INSIGHTS ENGINE =================
